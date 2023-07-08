@@ -1,0 +1,113 @@
+server:
+  port: 10010
+
+project:
+  name: monitor-server
+
+spring:
+  main:
+    web-application-type: reactive
+    allow-bean-definition-overriding: true
+  application:
+    name: gateway # 服务名称
+  # redis
+  redis:
+    host: ${REDIS_HOST}
+    port: 6379
+    password: ${REDIS_PASSWORD}
+    lettuce:
+      pool:
+        max-idle: 30
+        max-active: 8
+        max-wait: 10000
+        min-idle: 10
+      cluster:
+        refresh:
+          adaptive: true
+          #20秒自动刷新一次
+          period: 20
+      shutdown-timeout: 100000
+    database: 2
+  # mq
+  rabbitmq:
+    host: ${RABBIT_HOST}
+    username: ${RABBIT_USERNAME}
+    password: ${RABBIT_PASSWORD}
+    virtual-host: /
+    port: 5672
+    # 开启退回模式,如果队列没能ack,就会调用回退方法
+    publisher-returns: true
+    # 开启确认模式,如果生产者没能把消息发到交换机,就会调用回退方法
+    publisher-confirm-type: correlated
+    listener:
+      direct:
+        # 设置消息手动签收
+        acknowledge-mode: manual
+        # 服务端限流,这个需要根据你的承载能力去设置
+        consumers-per-queue: 20
+
+  cloud:
+    sentinel:
+      transport:
+        dashboard: localhost:8090
+    gateway:
+      default-filters:
+        - AddRequestHeader=origin,gateway
+      routes: # 网关路由配置
+        - id: user-service # 路由id，自定义，只要唯一即可
+          uri: lb://user-service # 路由的目标地址 lb就是负载均衡，后面跟服务名称
+          predicates: # 路由断言，也就是判断请求是否符合路由规则的条件
+            - Path=/user/** # 这个是按照路径匹配，只要以/user/开头就符合要求
+
+        - id: uaa-service # 路由id，自定义，只要唯一即可
+          uri: lb://uaa-service # 路由的目标地址 lb就是负载均衡，后面跟服务名称
+          predicates: # 路由断言，也就是判断请求是否符合路由规则的条件
+            - Path=/uaa/** # 这个是按照路径匹配，只要以/uaa/开头就符合要求
+
+        - id: chatRoom-service # 路由id，自定义，只要唯一即可
+          uri: lb://chat-service # 路由的目标地址 lb就是负载均衡，后面跟服务名称
+          predicates: # 路由断言，也就是判断请求是否符合路由规则的条件
+            - Path=/content/**,/chatRoom/**,/clue/**,/script/**,/script/**,/gameRole/**,/tag/**
+
+        - id: ws-service # 路由id，自定义，只要唯一即可
+          uri: lb:ws://ws-service # 路由的目标地址 lb就是负载均衡，后面跟服务名称
+          predicates: # 路由断言，也就是判断请求是否符合路由规则的条件
+            - Path=/ws/**
+          filters:
+            - name: Retry
+              args:
+                retries: 15
+                series:
+                  - SERVER_ERROR
+                  - CLIENT_ERROR
+                methods:
+                  - GET
+                  - POST
+                exceptions:
+                  - java.io.IOException
+                  - java.util.concurrent.TimeoutException
+
+
+
+      globalcors: # 全局的跨域处理
+        add-to-simple-url-handler-mapping: true # 解决options请求被拦截问题
+        corsConfigurations:
+          '[/**]':
+            #            allowedOrigins: # 允许哪些网站的跨域请求
+            #              - "http://localhost:8090"
+            allowedMethods: # 允许的跨域ajax的请求方式
+              - "GET"
+              - "POST"
+              - "DELETE"
+              - "PUT"
+              - "OPTIONS"
+            allowedHeaders: "*" # 允许在请求中携带的头信息
+            allowCredentials: true # 是否允许携带cookie
+            maxAge: 360000 # 这次跨域检测的有效期
+
+
+setting:
+  # 消息接收失败重试次数
+  max-retry-time: 3
+  # 消息接收失败重试间隔(s)
+  retry-interval: 1

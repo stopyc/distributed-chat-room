@@ -1,0 +1,31 @@
+
+spring:
+  # redis
+  redis:
+    host: ${REDIS_HOST}
+    port: 6379
+    password: ${REDIS_PASSWORD}
+    lettuce:
+      pool:
+        max-idle: 30
+        max-active: 8
+        max-wait: 10000
+        min-idle: 10
+      cluster:
+        refresh:
+          adaptive: true
+          #20秒自动刷新一次
+          period: 20
+      shutdown-timeout: 100000
+    database: 2
+feign:
+  client:
+    config:
+      default: # 可以设置为服务名,针对某一个服务开启不同的日志级别
+        loggerlevel: BASIC  # 设置为全部打印,表示是最完全的日志
+
+  httpclient:
+    #    enabled: true # 开启feign对HttpClient的支持
+    max-connections: 200 # 最大的连接数
+    max-connections-per-route: 50 # 每个路径的最大连接数
+

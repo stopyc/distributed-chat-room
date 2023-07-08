@@ -1,0 +1,33 @@
+{
+  "properties": [
+    {
+      "name": "netty-websocket.host",
+      "type": "java.lang.String",
+      "description": "Description for netty-websocket.host."
+    },
+    {
+      "name": "netty-websocket.path",
+      "type": "java.lang.String",
+      "description": "Description for netty-websocket.path."
+    },
+    {
+      "name": "netty-websocket.port",
+      "type": "java.lang.String",
+      "description": "Description for netty-websocket.port."
+    },
+    {
+      "name": "netty-websocket.bossLoopGroupThreads",
+      "type": "java.lang.String",
+      "description": "Description for netty-websocket.bossLoopGroupThreads."
+    },
+    {
+      "name": "netty-websocket.workerLoopGroupThreads",
+      "type": "java.lang.String",
+      "description": "Description for netty-websocket.workerLoopGroupThreads."
+    },
+    {
+      "name": "netty-websocket.userCompressionHandler",
+      "type": "java.lang.String",
+      "description": "Description for netty-websocket.userCompressionHandler."
+    }
+  ] }

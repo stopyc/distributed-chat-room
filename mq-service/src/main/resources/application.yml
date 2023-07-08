@@ -1,0 +1,13 @@
+# 运行端口
+
+spring:
+  # cloud
+  # 运行环境
+  profiles:
+    active: dev
+
+  # 项目名称
+  application:
+    name: ws-service
+  main:
+    allow-bean-definition-overriding: true

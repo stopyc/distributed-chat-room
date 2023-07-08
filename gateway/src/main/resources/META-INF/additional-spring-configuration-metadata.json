@@ -1,0 +1,13 @@
+{
+  "properties": [
+    {
+      "name": "project.name",
+      "type": "java.lang.String",
+      "description": "Description for project.name."
+    },
+    {
+      "name": "setting.max-retry-time",
+      "type": "java.lang.String",
+      "description": "Description for setting.max-retry-time."
+    }
+  ] }

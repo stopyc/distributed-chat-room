@@ -1,0 +1,13 @@
+{
+  "properties": [
+    {
+      "name": "setting.max-retry-time",
+      "type": "java.lang.String",
+      "description": "Description for setting.max-retry-time."
+    },
+    {
+      "name": "setting.retry-interval",
+      "type": "java.lang.String",
+      "description": "Description for setting.retry-interval."
+    }
+  ] }

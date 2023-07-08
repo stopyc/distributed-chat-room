@@ -1,0 +1,8 @@
+{
+  "properties": [
+    {
+      "name": "setting.super-admin-user-id",
+      "type": "java.lang.String",
+      "description": "Description for setting.super-admin-user-id."
+    }
+  ] }
