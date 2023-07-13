@@ -12,7 +12,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
- * @program: rabbit-mq
+ * @program: chat-room
  * @description: 消息队列配置类
  * @author: stop.yc
  * @create: 2023-02-14 17:40
@@ -21,20 +21,15 @@ import org.springframework.context.annotation.Configuration;
 @Slf4j
 public class RabbitMQConfig {
 
-    /**
-     * 队列和交换机的名字,需要请在这里配置
-     */
 
-    public static final String EXCHANGE_NAME = "boot_topic_exchange";
+    public static final String X_MESSAGES_TTL = "x-messages-ttl";
+    public static final String X_DEAD_LETTER_EXCHANGE = "x-dead-letter-exchange";
+    public static final String X_DEAD_LETTER_ROUTING_KEY = "x-dead-letter-routing-key";
+    public static final String X_MAX_LENGTH = "x-max-length";
 
-    public static final String DLX_EXCHANGE_NAME = "dlx_topic_exchange";
-
-    public static final String QUEUE_NAME = "boot_queue";
-
-    public static final String DLX_QUEUE_NAME = "dlx_queue";
 
     @Bean
-    public RabbitListenerContainerFactory<?> rabbitListenerContainerFactory(ConnectionFactory connectionFactory){
+    public RabbitListenerContainerFactory<?> rabbitListenerContainerFactory(ConnectionFactory connectionFactory) {
         SimpleRabbitListenerContainerFactory factory = new SimpleRabbitListenerContainerFactory();
         factory.setConnectionFactory(connectionFactory);
         factory.setMessageConverter(new Jackson2JsonMessageConverter());
@@ -92,96 +87,5 @@ public class RabbitMQConfig {
             }
         });
         return rabbitTemplate;
-    }
-
-
-
-
-    //=======================================第一组交换机与队列=====================================
-    /**
-     * 交换机
-     *
-     * @return :交换机对象
-     */
-    @Bean("bootExchange")
-    public Exchange bootExchange() {
-        return ExchangeBuilder
-                .topicExchange(EXCHANGE_NAME)
-                //持久化
-                .durable(true)
-                .build();
-    }
-
-    /**
-     * 队列
-     *
-     * @return :队列对象
-     */
-    @Bean("bootQueue")
-    public Queue bootQueue() {
-        //持久化,队列中的消息过期时间为10s
-        return QueueBuilder
-                //持久化,表示重启mq依旧数据存在
-                .durable(QUEUE_NAME)
-                //过期时间
-                .withArgument("x-message-ttl", 20000L)
-                //队列绑定死信交换机
-                .withArgument("x-dead-letter-exchange", DLX_EXCHANGE_NAME)
-                //队列绑定死信队列路由,发送的路由为dlx.dead(死信队列的路由接受为dlx.#)
-                .withArgument("x-dead-letter-routing-key", "dlx.dead")
-                //最大长度
-                .withArgument("x-max-length", 20L)
-                .build();
-
-    }
-
-    /**
-     * 队列与交换机绑定关系,Binding
-     *
-     * @param bootQueue    :哪个队列
-     * @param bootExchange :哪个交换机
-     * @return :binding对象
-     */
-    @Bean
-    public Binding bindQueueExchange(@Qualifier("bootQueue") Queue bootQueue, @Qualifier("bootExchange") Exchange bootExchange) {
-        //设置请求到队列的路由为boot.#
-        return BindingBuilder.bind(bootQueue).to(bootExchange).with("boot.#").noargs();
-    }
-
-
-    //=====================================死信队列=========================================
-
-    /**
-     * 死信交换机
-     *
-     * @return :死信交换机对象
-     */
-    @Bean("dlxExchange")
-    public Exchange dlxExchange() {
-        return ExchangeBuilder.topicExchange(DLX_EXCHANGE_NAME).durable(true).build();
-    }
-
-
-    @Bean("dlxQueue")
-    public Queue dixQueue() {
-
-        //持久化,死信队列中的消息过期时间为30s
-        return QueueBuilder
-                .durable(DLX_QUEUE_NAME)
-                .withArgument("x-message-ttl", 30000L)
-                .build();
-    }
-
-
-    /**
-     * 死信队列与交死信换机绑定关系
-     *
-     * @param dlxQueue    :死信队列
-     * @param dlxExchange :死信交换机
-     * @return :binding对象
-     */
-    @Bean
-    public Binding bindDLXQueueExchange(@Qualifier("dlxQueue") Queue dlxQueue, @Qualifier("dlxExchange") Exchange dlxExchange) {
-        return BindingBuilder.bind(dlxQueue).to(dlxExchange).with("dlx.#").noargs();
     }
 }
