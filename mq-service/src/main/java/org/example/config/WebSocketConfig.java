@@ -24,14 +24,4 @@ public class WebSocketConfig{
     public ServerEndpointExporter serverEndpointExporter(){
         return new ServerEndpointExporter();
     }
-    //
-    //@Override
-    //public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-    //    registry
-    //            //添加处理器到对应的路径
-    //            .addHandler(new ServletWebSocketServerHandler(), "/ws")
-    //            .setAllowedOrigins("*");
-    //
-    //}
-
 }

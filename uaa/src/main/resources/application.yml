@@ -11,8 +11,7 @@ spring:
     password: 123456
     driver-class-name: com.mysql.jdbc.Driver
   application:
-#    name: uaa-service
-    name: ws-service
+    name: uaa-service
   profiles:
     active: dev # 开发环境
   cloud:
