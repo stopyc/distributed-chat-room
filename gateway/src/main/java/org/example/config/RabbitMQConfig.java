@@ -124,13 +124,13 @@ public class RabbitMQConfig {
                 //持久化,表示重启mq依旧数据存在
                 .durable(QUEUE_NAME)
                 //过期时间
-                .withArgument("x-message-ttl", 20000L)
+                .withArgument("x-message-ttl", 600000L)
                 //队列绑定死信交换机
                 .withArgument("x-dead-letter-exchange", DLX_EXCHANGE_NAME)
                 //队列绑定死信队列路由,发送的路由为dlx.dead(死信队列的路由接受为dlx.#)
                 .withArgument("x-dead-letter-routing-key", "dlx.dead")
                 //最大长度
-                .withArgument("x-max-length", 20L)
+                .withArgument("x-max-length", 5000L)
                 .build();
 
     }
@@ -168,7 +168,7 @@ public class RabbitMQConfig {
         //持久化,死信队列中的消息过期时间为30s
         return QueueBuilder
                 .durable(DLX_QUEUE_NAME)
-                .withArgument("x-message-ttl", 30000L)
+                .withArgument("x-message-ttl", 300000L)
                 .build();
     }
 
