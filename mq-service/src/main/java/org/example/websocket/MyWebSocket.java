@@ -17,8 +17,10 @@ import java.util.Objects;
 
 import javax.annotation.Resource;
 import javax.websocket.*;
+import javax.websocket.server.HandshakeRequest;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
+import javax.websocket.server.ServerEndpointConfig;
 
 import static org.example.constant.ResultEnum.SERVER_INTERNAL_ERROR;
 
@@ -29,12 +31,12 @@ import static org.example.constant.ResultEnum.SERVER_INTERNAL_ERROR;
  * @author: stop.yc
  * @create: 2022-09-09 20:11
  **/
-@ServerEndpoint("/ws/{chatRoomId}/{roomOwnerId}/{scriptId}/{needTime}/{userId}")
-//@ServerEndpoint("/ws")
+@ServerEndpoint(value = "/ws/{chatRoomId}/{roomOwnerId}/{scriptId}/{needTime}/{userId}", configurator = MyWebSocket.class)
 @Slf4j
 @Component
-@EqualsAndHashCode
-public class MyWebSocket {
+@EqualsAndHashCode(callSuper = false)
+public class MyWebSocket extends ServerEndpointConfig.Configurator {
+
 
     /**
      * 与客户端建立会话的session
@@ -66,6 +68,11 @@ public class MyWebSocket {
      */
     private String userId;
 
+    @Override
+    public void modifyHandshake(ServerEndpointConfig sec, HandshakeRequest request, HandshakeResponse response) {
+        log.info("111");
+        super.modifyHandshake(sec, request, response);
+    }
 
     /**
      * 鉴权, 统一token认证,并对字段进行赋值
@@ -79,9 +86,10 @@ public class MyWebSocket {
                        @PathParam("needTime") String needTime,
                        @PathParam("userId") String userId) throws IOException {
 
-        construct(session, chatRoomId, roomOwnerId, scriptId, needTime, userId);
+        log.info("222");
+        //construct(session, chatRoomId, roomOwnerId, scriptId, needTime, userId);
 
-        GlobalWsMap.online(this);
+        //GlobalWsMap.online(this);
     }
 
 
