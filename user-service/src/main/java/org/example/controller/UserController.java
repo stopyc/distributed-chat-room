@@ -17,6 +17,7 @@ import org.example.pojo.vo.ResultVO;
 import org.example.pojo.vo.UserVO;
 import org.example.service.UserService;
 import org.example.util.FileUtils;
+import org.example.util.RequestHolder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -80,12 +81,12 @@ public class UserController {
         return "这是一个公共资源";
     }
 
-    @GetMapping("/inner/getUserByUsername/{username}")
+    @GetMapping("/inner/getUserByUsername")
     @Inner
-    public ResultVO getUserByUsername(@PathVariable("username") String username) {
+    public ResultVO getUserByUsername(@RequestParam("username") String username) {
 
         if (!StringUtils.hasText(username)) {
-            return ResultVO.fail(PARAMETER_NOT_FOUND);
+            username = RequestHolder.get().getIp();
         }
 
         return userService.getUserByUsername(username);
@@ -263,7 +264,6 @@ public class UserController {
         if (userId == null) {
             throw new BusinessException(PARAMETER_NOT_FOUND);
         }
-
 
         UserBO userBO = BeanUtil.copyProperties(userService.getById(userId), UserBO.class);
         return ResultDTO.ok(userBO);

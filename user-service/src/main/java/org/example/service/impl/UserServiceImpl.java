@@ -19,13 +19,16 @@ import org.example.service.MenuService;
 import org.example.service.RoleService;
 import org.example.service.UserService;
 import org.example.util.RedisUtils;
+import org.example.util.RequestHolder;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
 
 import javax.annotation.Resource;
@@ -68,6 +71,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     private static final String ANONYMOUS_USER = "anonymousUser";
 
+    private static final String USER_DEFAULT_PASSWORD = "123456";
+
 
     @Override
     public ResultVO logout() {
@@ -107,12 +112,22 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public ResultVO getUserByUsername(String username) {
+
         User user = lambdaQuery()
                 .eq(User::getUsername, username)
                 .one();
 
         if (Objects.isNull(user)) {
-            throw new UsernameNotFoundException("该用户不存在");
+            ResultVO resultVO = register(UserVO.builder()
+                    .username(username)
+                    .password(USER_DEFAULT_PASSWORD)
+                    .build());
+            if (resultVO.getCode() != SUCCESS.getCode()) {
+                throw new BusinessException(resultVO.getMsg());
+            }
+            user = lambdaQuery()
+                    .eq(User::getUsername, username)
+                    .one();
         }
 
         //权限集合
@@ -199,7 +214,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         save(user);
 
         userMapper.addRole2User(user.getUserId(), TOURIST.getRoleId());
-
         return ResultVO.ok();
     }
 }

@@ -20,8 +20,8 @@ public interface UserClient {
      * @param username: 用户名
      * @return :用户对象
      */
-    @GetMapping("/user/inner/getUserByUsername/{username}")
-    ResultVO getByUsername(@PathVariable("username") String username);
+    @GetMapping("/user/inner/getUserByUsername")
+    ResultVO getByUsername(@RequestParam("username") String username);
 
     /**
      * 内部开放接口,通过用户id获取用户对象

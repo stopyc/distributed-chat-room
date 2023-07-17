@@ -29,6 +29,7 @@ import static org.example.constant.RegexConstant.REGEX_PHONE_NUMBER;
 public class UserVO implements Serializable {
 
     private static final long serialVersionUID = -3462847124376859912L;
+
     @NotBlank(message = "请输入正确的用户名!")
     private String username;
 

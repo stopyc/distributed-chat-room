@@ -123,10 +123,9 @@ public class MonitorAspect {
         }
 
 
-        //System.out.println("stackTrace = " + stackTrace);
         StackTraceElement[] stackTrace2 = e.getStackTrace();
         for (StackTraceElement stackTraceElement : stackTrace2) {
-            System.out.println(stackTraceElement.toString());
+            //System.out.println(stackTraceElement.toString());
         }
         rabbitTemplate.convertAndSend("boot_topic_exchange", "boot.monitor", JSONObject.toJSONString(exception));
     }

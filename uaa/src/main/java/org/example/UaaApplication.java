@@ -8,6 +8,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 
 /**
  * @author YC104
+ * @author YC104
  * @program: cloud
  * @description: 启动类
  * @author: stop.yc
@@ -16,6 +17,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 @SpringBootApplication
 /**
  * 这个需要添加feign配置类,写在了common模块中
+ * @author: stop.yc
  */
 @EnableFeignClients(clients = {UserClient.class}, defaultConfiguration = FeignConfiguration.class)
 public class UaaApplication {
