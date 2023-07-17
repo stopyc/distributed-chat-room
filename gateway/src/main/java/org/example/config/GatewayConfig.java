@@ -16,12 +16,6 @@ import reactor.core.publisher.Mono;
 /**
  * @author YC104
  */
-/**
- * @Description
- * @Author Singh
- * @Date 2020-07-01 17:57
- * @Version
- **/
 @Configuration
 public class GatewayConfig {
 
@@ -39,13 +33,10 @@ public class GatewayConfig {
                 .then(Mono.just(exchange))
                 .map(serverWebExchange -> {
                     //adds header to response
-                    System.out.println("99999999999999999999");
                     serverWebExchange.getResponse().getHeaders().set("CUSTOM-RESPONSE-HEADER",
                             HttpStatus.OK.equals(serverWebExchange.getResponse().getStatusCode()) ? "It worked": "It did not work");
                     return serverWebExchange;
                 })
                 .then();
     }
-
-
 }
