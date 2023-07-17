@@ -1,68 +1,27 @@
 package org.example.filter;
 
 import cn.hutool.core.codec.Base64;
-import cn.hutool.jwt.JWT;
-import cn.hutool.jwt.JWTPayload;
-import cn.hutool.jwt.JWTUtil;
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
-import com.google.common.base.Joiner;
-import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
-import org.checkerframework.checker.index.qual.SameLen;
-import org.checkerframework.checker.units.qual.A;
-//import org.example.pojo.dto.RedisData;
-//import org.example.util.JWTUtils;
-//import org.example.util.RedisUtils;
 import org.example.util.JWTUtils;
 import org.example.util.RedisUtils;
-import org.reactivestreams.Publisher;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.cloud.gateway.filter.NettyWriteResponseFilter;
 import org.springframework.core.Ordered;
-import org.springframework.core.annotation.Order;
-import org.springframework.core.io.buffer.DataBuffer;
-import org.springframework.core.io.buffer.DataBufferFactory;
-import org.springframework.core.io.buffer.DataBufferUtils;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
-import org.springframework.http.server.reactive.ServerHttpResponse;
-import org.springframework.http.server.reactive.ServerHttpResponseDecorator;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.jwt.Jwt;
-import org.springframework.security.jwt.JwtHelper;
-import org.springframework.security.oauth2.common.OAuth2AccessToken;
 import org.springframework.security.oauth2.common.exceptions.InvalidTokenException;
-import org.springframework.security.oauth2.provider.OAuth2Authentication;
-import org.springframework.security.oauth2.provider.OAuth2Request;
-import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.stereotype.Component;
-import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
-//import static org.example.constant.GlobalConstants.*;
-//import static org.example.constant.RedisKey.LOGOUT_KEY;
-//import static org.example.constant.RedisKey.REQUEST_ID_PREFIX;
 import static org.example.constant.RedisKey.LOGOUT_KEY;
-import static org.springframework.cloud.gateway.support.ServerWebExchangeUtils.ORIGINAL_RESPONSE_CONTENT_TYPE_ATTR;
 
 /**
  * @program: cloud-demo
@@ -156,8 +115,6 @@ public class AuthorizeFilter implements GlobalFilter , Ordered {
 
 
         return chain.filter(exchange.mutate().request(request).build());
-
-
     }
 
 

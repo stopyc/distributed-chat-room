@@ -2,7 +2,6 @@ package org.example.handler;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
-import org.checkerframework.checker.index.qual.SameLen;
 import org.example.pojo.vo.ResultVO;
 import org.springframework.boot.web.reactive.error.ErrorWebExceptionHandler;
 import org.springframework.core.io.buffer.DataBufferFactory;
@@ -30,8 +29,6 @@ public class GlobalErrorExceptionHandler implements ErrorWebExceptionHandler {
     public Mono<Void> handle(ServerWebExchange exchange, Throwable ex) {
 
         ex.printStackTrace();
-
-
         ServerHttpResponse response = exchange.getResponse();
 
         if (response.isCommitted()) {

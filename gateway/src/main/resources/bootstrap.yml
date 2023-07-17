@@ -2,10 +2,13 @@ spring:
   application:
     name: gateway # 服务名称
   cloud:
+    inetutils:
+      preferred-networks:
+        - 192.168.31
     nacos:
-      server-addr: ${NACOS_HOST} # nacos地址
-#      server-addr: localhost # nacos地址
+      #      server-addr: ${NACOS_HOST} # nacos地址
+      server-addr: localhost # nacos地址
       discovery:
-#        ephemeral: false
+        ephemeral: false
         # 广州集群
         cluster-name: GZ

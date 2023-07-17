@@ -1,5 +1,8 @@
 spring:
   cloud:
+    inetutils:
+      preferred-networks:
+        - 192.168.31
     nacos:
       server-addr: ${NACOS_HOST} # nacos地址
       config:
@@ -7,5 +10,5 @@ spring:
       discovery:
         # 广州集群
         cluster-name: GZ
-#        ephemeral: false
+        ephemeral: false
 
