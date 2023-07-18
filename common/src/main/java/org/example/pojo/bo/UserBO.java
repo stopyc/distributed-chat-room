@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+
 import java.io.Serializable;
 
 /**
@@ -40,5 +41,5 @@ public class UserBO implements Serializable {
 
     private Integer isDeleted;
 
-    private Integer creditScore;
+    private String lastIp;
 }

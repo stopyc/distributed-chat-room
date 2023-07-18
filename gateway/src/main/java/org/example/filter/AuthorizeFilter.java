@@ -112,8 +112,6 @@ public class AuthorizeFilter implements GlobalFilter , Ordered {
 
         //8. 把token解析后的信息,放入jsonToken中,在微服务中传递
         request = request.mutate().header("jsonToken", Base64.encode(JSONObject.toJSONString(jsonToken))).build();
-
-
         return chain.filter(exchange.mutate().request(request).build());
     }
 
@@ -122,6 +120,6 @@ public class AuthorizeFilter implements GlobalFilter , Ordered {
     @Override
     public int getOrder() {
         //order越小越先执行 当前Filter要在NettyWriteResponseFilter 之前运行
-        return NettyWriteResponseFilter.WRITE_RESPONSE_FILTER_ORDER - 1;
+        return NettyWriteResponseFilter.WRITE_RESPONSE_FILTER_ORDER - 2;
     }
 }

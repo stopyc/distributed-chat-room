@@ -35,7 +35,7 @@ public class WsMessageDTO {
     private String username;
 
     /**
-     * 该条消息的发送者额的id
+     * 该条消息的发送者的id
      */
     private Long userId;
 

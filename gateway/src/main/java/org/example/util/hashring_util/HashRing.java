@@ -1,6 +1,6 @@
 package org.example.util.hashring_util;
 
-import org.example.util.hashring_util.entity.Address;
+import com.alibaba.nacos.naming.utils.nacoshashring.entity.Address;
 import org.springframework.stereotype.Component;
 
 /**

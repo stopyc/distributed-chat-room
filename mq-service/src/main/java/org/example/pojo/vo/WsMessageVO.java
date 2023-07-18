@@ -28,5 +28,4 @@ public class WsMessageVO {
      * 0为语音,1为文字,2为ping
      */
     private Integer messageType;
-
 }

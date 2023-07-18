@@ -1,7 +1,7 @@
 package org.example.util.hashring_util;
 
 
-import org.example.util.hashring_util.entity.Address;
+import com.alibaba.nacos.naming.utils.nacoshashring.entity.Address;
 import org.example.util.hashring_util.support.HashRingRedis;
 
 /**
@@ -14,7 +14,8 @@ public class Test {
     public static void main(String[] args) {
         HashRing hashRing = HashRingRedis.newInstance(new WebsocketServer());
         System.out.println("hashRing.getServerName() = " + hashRing.getServerName());
-        Address address = hashRing.getAddress("1");
+        Address address;
+        address = hashRing.getAddress("1");
         System.out.println("address = " + address);
     }
 }

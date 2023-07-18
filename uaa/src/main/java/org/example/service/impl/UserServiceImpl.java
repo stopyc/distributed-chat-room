@@ -1,9 +1,6 @@
 package org.example.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.json.JSON;
-import cn.hutool.json.JSONUtil;
-import com.alibaba.fastjson2.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.example.feign.UserClient;
 import org.example.pojo.dto.UserAuthority;
@@ -11,20 +8,12 @@ import org.example.pojo.exception.FeignException;
 import org.example.pojo.vo.ResultVO;
 import org.example.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletResponse;
-import java.util.*;
-import java.util.concurrent.TimeUnit;
+import java.util.LinkedHashMap;
 
 import static org.example.constant.ResultEnum.REQUEST_SUCCESS;
 
@@ -62,15 +51,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
 
         Object data = userByUsername.getData();
-
-        System.out.println("data = " + data);
-
-        if (data instanceof UserAuthority) {
-            System.out.println(11);
-        }
-
-        Class<?> aClass = data.getClass();
-        System.out.println(aClass.getName());
 
         UserAuthority userAuthority = BeanUtil.mapToBean((LinkedHashMap) data, UserAuthority.class, true);
 

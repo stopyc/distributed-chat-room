@@ -2,7 +2,6 @@ package org.example.controller;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.util.RuntimeUtil;
 import cn.hutool.core.util.ZipUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.example.UserServiceApplication;
@@ -10,14 +9,13 @@ import org.example.annotation.Inner;
 import org.example.pojo.bo.UserBO;
 import org.example.pojo.dto.ResultDTO;
 import org.example.pojo.dto.UserAuthority;
-import org.example.pojo.exception.BusinessException;
 import org.example.pojo.dto.UserDTO;
+import org.example.pojo.exception.BusinessException;
 import org.example.pojo.vo.JavaFileVO;
 import org.example.pojo.vo.ResultVO;
 import org.example.pojo.vo.UserVO;
 import org.example.service.UserService;
 import org.example.util.FileUtils;
-import org.example.util.RequestHolder;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -28,21 +26,14 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
-
 import java.io.File;
-import java.io.FileFilter;
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.security.CodeSource;
 import java.security.ProtectionDomain;
 import java.util.List;
-import java.util.jar.JarFile;
-import java.util.jar.Manifest;
-import java.util.zip.ZipEntry;
 
-import static org.example.constant.GlobalConstants.*;
-import static org.example.constant.ResultEnum.*;
+import static org.example.constant.ResultEnum.PARAMETER_NOT_FOUND;
 
 /**
  * @author YC104
@@ -83,13 +74,15 @@ public class UserController {
 
     @GetMapping("/inner/getUserByUsername")
     @Inner
-    public ResultVO getUserByUsername(@RequestParam("username") String username) {
+    public ResultVO getUserByUsername(@RequestParam("username") String username, HttpServletRequest httpServletRequest) {
 
+        String ip = null;
         if (!StringUtils.hasText(username)) {
-            username = RequestHolder.get().getIp();
+            ip = httpServletRequest.getHeader("X-Real-IP");
+            username = ip;
         }
 
-        return userService.getUserByUsername(username);
+        return userService.getUserByUsername(username, ip);
     }
 
     @PutMapping("/logout")

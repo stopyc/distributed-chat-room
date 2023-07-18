@@ -1,26 +1,20 @@
 package org.example.websocket;
 
-import com.alibaba.fastjson.JSONException;
-import com.alibaba.fastjson.JSONObject;
-import io.netty.handler.timeout.IdleStateEvent;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.example.pojo.bo.UserBO;
 import org.example.pojo.dto.ResultDTO;
-import org.example.pojo.dto.UserChatDTO;
-import org.example.pojo.vo.WsMessageVO;
-import org.example.util.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.example.pojo.exception.BusinessException;
+import org.example.util.JWTUtils;
 import org.springframework.stereotype.Component;
+import org.springframework.util.StringUtils;
 
-import java.io.IOException;
-import java.util.Objects;
-
-import javax.annotation.Resource;
 import javax.websocket.*;
-import javax.websocket.server.HandshakeRequest;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
-import javax.websocket.server.ServerEndpointConfig;
+import java.io.IOException;
+import java.util.Objects;
 
 import static org.example.constant.ResultEnum.SERVER_INTERNAL_ERROR;
 
@@ -31,12 +25,12 @@ import static org.example.constant.ResultEnum.SERVER_INTERNAL_ERROR;
  * @author: stop.yc
  * @create: 2022-09-09 20:11
  **/
-@ServerEndpoint(value = "/ws/{chatRoomId}/{roomOwnerId}/{scriptId}/{needTime}/{userId}", configurator = MyWebSocket.class)
+@ServerEndpoint(value = "/ws/{chatRoomId}/{token}")
 @Slf4j
 @Component
 @EqualsAndHashCode(callSuper = false)
-public class MyWebSocket extends ServerEndpointConfig.Configurator {
-
+@Getter
+public class MyWebSocket {
 
     /**
      * 与客户端建立会话的session
@@ -49,30 +43,9 @@ public class MyWebSocket extends ServerEndpointConfig.Configurator {
     private String chatRoomId;
 
     /**
-     * 房主id
-     */
-    private String roomOwnerId;
-
-    /**
-     * 剧本id
-     */
-    private String scriptId;
-
-    /**
-     * 剧本推荐时间
-     */
-    private String needTime;
-
-    /**
      * 该session所属的用户id
      */
-    private String userId;
-
-    @Override
-    public void modifyHandshake(ServerEndpointConfig sec, HandshakeRequest request, HandshakeResponse response) {
-        log.info("111");
-        super.modifyHandshake(sec, request, response);
-    }
+    private Long userId;
 
     /**
      * 鉴权, 统一token认证,并对字段进行赋值
@@ -81,15 +54,21 @@ public class MyWebSocket extends ServerEndpointConfig.Configurator {
     @OnOpen
     public void onOpen(Session session,
                        @PathParam("chatRoomId") String chatRoomId,
-                       @PathParam("roomOwnerId") String roomOwnerId,
-                       @PathParam("scriptId") String scriptId,
-                       @PathParam("needTime") String needTime,
-                       @PathParam("userId") String userId) throws IOException {
+                       @PathParam("token") String token) throws IOException {
+        checkTokenAndRoomId(token, chatRoomId, session);
+        UserBO userBO = JWTUtils.parseJWT2UserBo(token);
+        this.userId = userBO.getUserId();
+        this.chatRoomId = chatRoomId;
+        this.session = session;
+    }
 
-        log.info("222");
-        //construct(session, chatRoomId, roomOwnerId, scriptId, needTime, userId);
-
-        //GlobalWsMap.online(this);
+    private void checkTokenAndRoomId(String token, String chatRoomId, Session session) {
+        if (StringUtils.isEmpty(token)) {
+            throwError(session, "token不能为空");
+        }
+        if (StringUtils.isEmpty(chatRoomId)) {
+            throwError(session, "chatRoomId不能为空");
+        }
     }
 
 
@@ -99,18 +78,15 @@ public class MyWebSocket extends ServerEndpointConfig.Configurator {
     @OnClose
     public void onClose(Session session,
                         @PathParam("chatRoomId") String chatRoomId,
-                        @PathParam("roomOwnerId") String roomOwnerId,
-                        @PathParam("scriptId") String scriptId,
-                        @PathParam("needTime") String needTime,
-                        @PathParam("userId") String userId) throws IOException {
-        //关闭连接
-        //session.getBasicRemote().sendText("您已离开了房间~");
-        session.close();
-        GlobalWsMap.leave(this);
+                        @PathParam("token") String token) throws IOException {
+
     }
 
     @OnError
-    public void onError(Session session, Throwable throwable) throws IOException {
+    public void onError(Session session,
+                        Throwable throwable,
+                        @PathParam("chatRoomId") String chatRoomId,
+                        @PathParam("token") String token) throws IOException {
 
         if (!Objects.isNull(session)) {
             if (session.isOpen()) {
@@ -124,51 +100,14 @@ public class MyWebSocket extends ServerEndpointConfig.Configurator {
 
     @OnMessage
     public void onMessage(Session session,
-                          String message) {
-
-        WsMessageVO wsMessageVO = null;
-        try {
-            wsMessageVO = JSONObject.parseObject(message, WsMessageVO.class);
-        } catch (JSONException e) {
-            log.warn("ws中传来的消息json序列化错误");
-            session.getAsyncRemote().sendText("您发送的消息格式有误,请重传");
-            return;
-        }
-        GlobalWsMap.msgToThisRoom(this, wsMessageVO);
-        //客户端收到消息,需要对其进行转发
-        log.info("客户端发送的消息为: \t\n" + message);
+                          String message,
+                          @PathParam("chatRoomId") String chatRoomId,
+                          @PathParam("token") String token) {
     }
 
-    public Session getSession() {
-        return session;
-    }
 
-    public String getChatRoomId() {
-        return chatRoomId;
-    }
-
-    public String getRoomOwnerId() {
-        return roomOwnerId;
-    }
-
-    public String getScriptId() {
-        return scriptId;
-    }
-
-    public String getNeedTime() {
-        return needTime;
-    }
-
-    public String getUserId() {
-        return userId;
-    }
-
-    private void construct(Session session, String chatRoomId, String roomOwnerId, String scriptId, String needTime, String userId) {
-        this.chatRoomId = chatRoomId;
-        this.roomOwnerId = roomOwnerId;
-        this.scriptId = scriptId;
-        this.needTime = needTime;
-        this.userId = userId;
-        this.session = session;
+    private void throwError(Session session, String message) {
+        session.getAsyncRemote().sendText(message);
+        throw new BusinessException(message);
     }
 }

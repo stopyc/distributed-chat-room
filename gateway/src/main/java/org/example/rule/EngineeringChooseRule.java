@@ -1,20 +1,15 @@
 package org.example.rule;
 
-import cn.hutool.core.lang.hash.Hash;
-import com.alibaba.nacos.api.naming.pojo.Instance;
+import com.alibaba.nacos.naming.utils.nacoshashring.entity.Address;
 import lombok.extern.slf4j.Slf4j;
-import org.example.util.GateWayHashUtils;
 import org.example.util.hashring_util.HashRing;
 import org.example.util.hashring_util.Server;
-import org.example.util.hashring_util.entity.Address;
 import org.example.util.hashring_util.support.HashRingRedis;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.cloud.client.ServiceInstance;
 import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.http.server.RequestPath;
 import org.springframework.stereotype.Component;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.server.ServerWebExchange;
 
 import javax.annotation.Resource;

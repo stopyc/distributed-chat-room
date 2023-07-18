@@ -19,26 +19,22 @@ import org.example.service.MenuService;
 import org.example.service.RoleService;
 import org.example.service.UserService;
 import org.example.util.RedisUtils;
-import org.example.util.RequestHolder;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.GetMapping;
 
 import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 
+import static org.example.constant.RedisKey.LOGOUT_KEY;
+import static org.example.constant.ResultEnum.SUCCESS;
+import static org.example.constant.ResultEnum.UNAUTHORIZED;
 import static org.example.constant.RoleEnum.TOURIST;
 import static org.example.constant.UserConstants.SUPER_ADMIN_USER_ID;
-import static org.example.constant.RedisKey.LOGOUT_KEY;
-import static org.example.constant.ResultEnum.*;
 
 
 /**
@@ -111,7 +107,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    public ResultVO getUserByUsername(String username) {
+    public ResultVO getUserByUsername(String username, String ip) {
 
         User user = lambdaQuery()
                 .eq(User::getUsername, username)
@@ -121,6 +117,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             ResultVO resultVO = register(UserVO.builder()
                     .username(username)
                     .password(USER_DEFAULT_PASSWORD)
+                    .lastIp(ip)
                     .build());
             if (resultVO.getCode() != SUCCESS.getCode()) {
                 throw new BusinessException(resultVO.getMsg());

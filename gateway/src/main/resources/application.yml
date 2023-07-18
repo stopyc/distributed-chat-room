@@ -1,5 +1,7 @@
 server:
   port: 10010
+  forward-headers-strategy: framework
+
 
 project:
   name: monitor-server

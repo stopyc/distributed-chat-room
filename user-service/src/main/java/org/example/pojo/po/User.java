@@ -3,12 +3,10 @@ package org.example.pojo.po;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.experimental.Accessors;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -41,14 +39,11 @@ public class User implements Serializable {
 
     private Integer age;
 
-    private Integer userStatus;
-
     private Integer isDeleted;
 
-    private Integer creditScore;
+    private String lastIp;
 
     private LocalDateTime updateTime;
 
     private LocalDateTime createTime;
-
 }

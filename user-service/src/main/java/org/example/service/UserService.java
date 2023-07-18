@@ -17,10 +17,11 @@ public interface UserService extends IService<User> {
 
     /**
      * 根据用户名获取
+     *
      * @param username
      * @return
      */
-    ResultVO getUserByUsername(String username);
+    ResultVO getUserByUsername(String username, String ip);
 
     ResultVO testTc();
 

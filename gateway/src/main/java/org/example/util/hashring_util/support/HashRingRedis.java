@@ -1,9 +1,9 @@
 package org.example.util.hashring_util.support;
 
+import com.alibaba.nacos.naming.utils.nacoshashring.entity.Address;
 import lombok.extern.slf4j.Slf4j;
 import org.example.util.hashring_util.AbstractHashRing;
 import org.example.util.hashring_util.Server;
-import org.example.util.hashring_util.entity.Address;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.stereotype.Component;

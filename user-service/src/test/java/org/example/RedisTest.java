@@ -1,6 +1,5 @@
 package org.example;
 
-import cn.hutool.extra.ftp.Ftp;
 import org.example.pojo.po.User;
 import org.example.util.RedisUtils;
 import org.junit.jupiter.api.Test;

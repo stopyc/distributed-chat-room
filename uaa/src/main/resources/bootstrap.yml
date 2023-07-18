@@ -11,4 +11,4 @@ spring:
       discovery:
         # 广州集群
         cluster-name: GZ
-        ephemeral: false
+        ephemeral: true
