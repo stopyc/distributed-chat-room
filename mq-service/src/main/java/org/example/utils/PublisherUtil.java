@@ -2,7 +2,7 @@ package org.example.utils;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.event.UserOnlineEvent;
-import org.example.pojo.bo.UserBO;
+import org.example.websocket.MyWebSocket;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
@@ -21,7 +21,7 @@ public class PublisherUtil {
     @Resource
     private ApplicationEventPublisher eventPublisher;
 
-    public void userOnline(Object source, UserBO userBO) {
-        eventPublisher.publishEvent(new UserOnlineEvent(source, userBO));
+    public void userOnline(Object source, MyWebSocket myWebSocket) {
+        eventPublisher.publishEvent(new UserOnlineEvent(source, myWebSocket));
     }
 }

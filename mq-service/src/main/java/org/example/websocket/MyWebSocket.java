@@ -55,6 +55,9 @@ public class MyWebSocket {
      */
     private Long userId;
 
+
+    private UserBO userBO;
+
     /**
      * 鉴权, 统一token认证,并对字段进行赋值
      * * 建立连接,维护服务器中的hashMap
@@ -68,7 +71,8 @@ public class MyWebSocket {
         this.userId = userBO.getUserId();
         this.chatRoomId = chatRoomId;
         this.session = session;
-        publisherUtil.userOnline(this, userBO);
+        this.userBO = userBO;
+        publisherUtil.userOnline(this, this);
     }
 
     private void checkTokenAndRoomId(String token, String chatRoomId, Session session) {
