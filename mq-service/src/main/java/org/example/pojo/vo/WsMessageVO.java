@@ -1,31 +1,24 @@
 package org.example.pojo.vo;
 
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.experimental.Accessors;
 
 /**
  * @program: chat-room
- * @description: ws中消息的dto
+ * @description: ws消息原始vo类
  * @author: stop.yc
- * @create: 2023-04-20 12:21
+ * @create: 2023-07-18 20:26
  **/
 @Data
-@AllArgsConstructor
-@NoArgsConstructor
-@Accessors(chain = true)
 @Builder
 public class WsMessageVO {
+    private Integer messageType;
 
-    /**
-     * 消息
-     */
+    private Long fromUserId;
+
     private String message;
 
-    /**
-     * 0为语音,1为文字,2为ping
-     */
-    private Integer messageType;
+    private byte[] binaryMessage;
+
+    private Long serverTime;
 }

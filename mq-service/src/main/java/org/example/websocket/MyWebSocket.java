@@ -5,8 +5,8 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.example.pojo.bo.UserBO;
-import org.example.pojo.dto.ResultDTO;
 import org.example.pojo.exception.BusinessException;
+import org.example.pojo.vo.WsMessageVO;
 import org.example.util.JWTUtils;
 import org.example.utils.PublisherUtil;
 import org.springframework.stereotype.Component;
@@ -16,9 +16,6 @@ import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
-import java.util.Objects;
-
-import static org.example.constant.ResultEnum.SERVER_INTERNAL_ERROR;
 
 
 /**
@@ -27,7 +24,7 @@ import static org.example.constant.ResultEnum.SERVER_INTERNAL_ERROR;
  * @author: stop.yc
  * @create: 2022-09-09 20:11
  **/
-@ServerEndpoint(value = "/ws/{chatRoomId}/{token}")
+@ServerEndpoint(value = "/ws/{token}/{type}")
 @Slf4j
 @Component
 @EqualsAndHashCode(callSuper = false)
@@ -46,11 +43,6 @@ public class MyWebSocket {
     private Session session;
 
     /**
-     * 房间的id,以房间id进行分组
-     */
-    private String chatRoomId;
-
-    /**
      * 该session所属的用户id
      */
     private Long userId;
@@ -64,23 +56,18 @@ public class MyWebSocket {
      */
     @OnOpen
     public void onOpen(Session session,
-                       @PathParam("chatRoomId") String chatRoomId,
                        @PathParam("token") String token) {
-        checkTokenAndRoomId(token, chatRoomId, session);
+        checkToken(token, session);
         UserBO userBO = JWTUtils.parseJWT2UserBo(token);
         this.userId = userBO.getUserId();
-        this.chatRoomId = chatRoomId;
         this.session = session;
         this.userBO = userBO;
         publisherUtil.userOnline(this, this);
     }
 
-    private void checkTokenAndRoomId(String token, String chatRoomId, Session session) {
+    private void checkToken(String token, Session session) {
         if (StringUtils.isEmpty(token)) {
             throwError(session, "token不能为空");
-        }
-        if (StringUtils.isEmpty(chatRoomId)) {
-            throwError(session, "chatRoomId不能为空");
         }
     }
 
@@ -90,32 +77,44 @@ public class MyWebSocket {
      */
     @OnClose
     public void onClose(Session session,
-                        @PathParam("chatRoomId") String chatRoomId,
                         @PathParam("token") String token) throws IOException {
-
+        publisherUtil.userOffline(this, this);
     }
 
     @OnError
     public void onError(Session session,
                         Throwable throwable,
-                        @PathParam("chatRoomId") String chatRoomId,
                         @PathParam("token") String token) throws IOException {
-
-        if (!Objects.isNull(session)) {
-            if (session.isOpen()) {
-                ResultDTO result = ResultDTO.fail(SERVER_INTERNAL_ERROR, throwable.getMessage());
-                session.getBasicRemote().sendText(com.alibaba.fastjson2.JSONObject.toJSONString(result));
-                session.close();
-            }
-        }
-        throwable.printStackTrace();
+        log.error("ws连接内部报错, 错误为 {}", throwable.getMessage());
     }
 
     @OnMessage
     public void onMessage(Session session,
                           String message,
-                          @PathParam("chatRoomId") String chatRoomId,
-                          @PathParam("token") String token) {
+                          @PathParam("token") String token,
+                          @PathParam("type") Integer messageType) {
+        WsMessageVO wsMessageVO = WsMessageVO.builder()
+                .fromUserId(this.userId)
+                .messageType(messageType)
+                .message(message)
+                .serverTime(System.currentTimeMillis())
+                .build();
+        publisherUtil.acceptMessage(this, wsMessageVO);
+    }
+
+    @OnMessage
+    public void onBinaryMessage(byte[] message,
+                                Session session,
+                                @PathParam("token") String token,
+                                @PathParam("type") Integer messageType) throws IOException {
+        // 处理二进制消息
+        WsMessageVO wsMessageVO = WsMessageVO.builder()
+                .fromUserId(this.userId)
+                .messageType(messageType)
+                .binaryMessage(message)
+                .serverTime(System.currentTimeMillis())
+                .build();
+        publisherUtil.acceptMessage(this, wsMessageVO);
     }
 
 

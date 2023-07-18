@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.pojo.dto.UserChatDTO;
 import org.example.pojo.exception.BusinessException;
 import org.example.pojo.exception.SystemException;
-import org.example.pojo.vo.WsMessageVO;
+import org.example.pojo.vo.MessageVO;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -50,19 +50,27 @@ public class GlobalWsMap {
         }
         WS_GROUP.put(myWebSocket.getUserId(), myWebSocket);
         ONLINE_COUNT.incrementAndGet();
+        sendText(myWebSocket, "欢迎");
     }
 
     /**
      * 下线
      */
     public static void offline(MyWebSocket myWebSocket) {
-
+        checkMyWebSocket(myWebSocket);
+        if (ONLINE_COUNT.get() <= 0) {
+            sendText(myWebSocket, "错误的下线请求");
+            close(myWebSocket);
+            throw new SystemException("错误的下线请求");
+        }
+        WS_GROUP.remove(myWebSocket.getUserId());
+        ONLINE_COUNT.decrementAndGet();
     }
 
     /**
      * 发送给房间中的所有人
      */
-    public static void msgToThisRoom(MyWebSocket myWebSocket, WsMessageVO wsMessageVO) {
+    public static void msgToThisRoom(MyWebSocket myWebSocket, MessageVO messageVO) {
     }
 
     /**
@@ -94,8 +102,7 @@ public class GlobalWsMap {
     private static void checkMyWebSocket(MyWebSocket myWebSocket) {
         if (Objects.isNull(myWebSocket)
                 || Objects.isNull(myWebSocket.getSession())
-                || Objects.isNull(myWebSocket.getUserId())
-                || Objects.isNull(myWebSocket.getChatRoomId())) {
+                || Objects.isNull(myWebSocket.getUserId())) {
             throw new BusinessException("MyWebSocket参数缺失");
         }
     }

@@ -1,7 +1,10 @@
 package org.example.utils;
 
 import lombok.extern.slf4j.Slf4j;
+import org.example.event.AcceptMessageEvent;
+import org.example.event.UserOfflineEvent;
 import org.example.event.UserOnlineEvent;
+import org.example.pojo.vo.WsMessageVO;
 import org.example.websocket.MyWebSocket;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
@@ -23,5 +26,13 @@ public class PublisherUtil {
 
     public void userOnline(Object source, MyWebSocket myWebSocket) {
         eventPublisher.publishEvent(new UserOnlineEvent(source, myWebSocket));
+    }
+
+    public void userOffline(Object source, MyWebSocket myWebSocket) {
+        eventPublisher.publishEvent(new UserOfflineEvent(source, myWebSocket));
+    }
+
+    public void acceptMessage(Object source, WsMessageVO wsMessageVO) {
+        eventPublisher.publishEvent(new AcceptMessageEvent(source, wsMessageVO));
     }
 }

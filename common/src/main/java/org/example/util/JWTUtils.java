@@ -27,14 +27,20 @@ public class JWTUtils {
     }
 
     public static String parseJWT(String token) {
-        JSONObject claimsJson = JWTUtil.parseToken(token).getPayload().getClaimsJson();
-        Object exp = claimsJson.get("exp");
-        LocalDateTime expireTime = TimeUtil.transfer(Long.parseLong(exp.toString()), LocalDateTime.class);
-        if (expireTime.isBefore(LocalDateTime.now())) {
-            throw new BusinessException("token已经过期了");
-        }
+        try {
 
-        return claimsJson.toString();
+            JSONObject claimsJson = JWTUtil.parseToken(token).getPayload().getClaimsJson();
+            Object exp = claimsJson.get("exp");
+            LocalDateTime expireTime = TimeUtil.transfer(Long.parseLong(exp.toString()), LocalDateTime.class);
+            if (expireTime.isBefore(LocalDateTime.now())) {
+                throw new BusinessException("token已经过期了");
+            }
+
+            return claimsJson.toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new BusinessException("token解析失败");
+        }
     }
 
     public static UserBO parseJWT2UserBo(String token) throws BusinessException {
