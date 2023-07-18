@@ -1,5 +1,6 @@
 package org.example.websocket;
 
+import cn.hutool.extra.spring.SpringUtil;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -7,6 +8,7 @@ import org.example.pojo.bo.UserBO;
 import org.example.pojo.dto.ResultDTO;
 import org.example.pojo.exception.BusinessException;
 import org.example.util.JWTUtils;
+import org.example.utils.PublisherUtil;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 
@@ -32,6 +34,12 @@ import static org.example.constant.ResultEnum.SERVER_INTERNAL_ERROR;
 @Getter
 public class MyWebSocket {
 
+    private static PublisherUtil publisherUtil;
+
+    static {
+        MyWebSocket.publisherUtil = SpringUtil.getBean(PublisherUtil.class);
+    }
+
     /**
      * 与客户端建立会话的session
      */
@@ -54,12 +62,13 @@ public class MyWebSocket {
     @OnOpen
     public void onOpen(Session session,
                        @PathParam("chatRoomId") String chatRoomId,
-                       @PathParam("token") String token) throws IOException {
+                       @PathParam("token") String token) {
         checkTokenAndRoomId(token, chatRoomId, session);
         UserBO userBO = JWTUtils.parseJWT2UserBo(token);
         this.userId = userBO.getUserId();
         this.chatRoomId = chatRoomId;
         this.session = session;
+        publisherUtil.userOnline(this, userBO);
     }
 
     private void checkTokenAndRoomId(String token, String chatRoomId, Session session) {
