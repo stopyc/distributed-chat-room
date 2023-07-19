@@ -3,8 +3,8 @@ package org.example.factory;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.example.pojo.bo.MessageBO;
 import org.example.pojo.exception.SystemException;
-import org.example.pojo.vo.MessageVO;
 import org.example.pojo.vo.WsMessageVO;
 import org.example.utils.IdUtil;
 import org.springframework.stereotype.Component;
@@ -35,9 +35,9 @@ public class MessageFactory {
      * @param wsMessageVO: wsMessageVo,也就是ws消息的原始vo
      * @return: org.example.pojo.vo.MessageVO
      */
-    public static MessageVO generateMessageVo(WsMessageVO wsMessageVO) {
-        MessageVO messageVO = BeanUtil.copyProperties(wsMessageVO, MessageVO.class);
-        messageVO.setServerTime(System.currentTimeMillis());
+    public static MessageBO generateMessageVo(WsMessageVO wsMessageVO) {
+        MessageBO messageBO = BeanUtil.copyProperties(wsMessageVO, MessageBO.class);
+        messageBO.setServerTime(System.currentTimeMillis());
         long begin = System.currentTimeMillis();
         long snowflakeId;
         try {
@@ -47,12 +47,12 @@ public class MessageFactory {
         }
         begin = System.currentTimeMillis() - begin;
         log.info("begin 为: {}", begin);
-        messageVO.setMessageId(snowflakeId);
-        if (messageVO.getIsText()) {
-            messageVO.setMessage(messageVO.getMessage());
+        messageBO.setMessageId(snowflakeId);
+        if (messageBO.getIsText()) {
+            messageBO.setMessage(messageBO.getMessage());
         } else {
-            messageVO.setByteArray(messageVO.getByteArray());
+            messageBO.setByteArray(messageBO.getByteArray());
         }
-        return messageVO;
+        return messageBO;
     }
 }

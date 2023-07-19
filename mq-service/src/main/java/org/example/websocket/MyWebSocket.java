@@ -105,6 +105,7 @@ public class MyWebSocket {
     private WsMessageVO getWsMessageVO(String message) {
         WsMessageVO wsMessageVO = JSONObject.parseObject(message, WsMessageVO.class);
         wsMessageVO.setFromUserId(this.userId);
+        wsMessageVO.setMyWebSocket(this);
         return wsMessageVO;
     }
 }

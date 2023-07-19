@@ -2,6 +2,7 @@ package org.example.pojo.vo;
 
 import lombok.Builder;
 import lombok.Data;
+import org.example.websocket.MyWebSocket;
 
 /**
  * @program: chat-room
@@ -12,6 +13,8 @@ import lombok.Data;
 @Data
 @Builder
 public class WsMessageVO {
+
+    private Long clientMessageId;
 
     private Integer messageType;
 
@@ -40,4 +43,6 @@ public class WsMessageVO {
      * 接收者的id
      */
     private Long toUserId;
+
+    private MyWebSocket myWebSocket;
 }

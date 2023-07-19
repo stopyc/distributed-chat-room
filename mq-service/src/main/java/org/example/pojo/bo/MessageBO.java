@@ -1,4 +1,4 @@
-package org.example.pojo.vo;
+package org.example.pojo.bo;
 
 import lombok.Data;
 
@@ -11,9 +11,12 @@ import java.io.Serializable;
  * @create: 2023-04-20 12:21
  **/
 @Data
-public class MessageVO implements Serializable {
+public class MessageBO implements Serializable {
 
     private Long messageId;
+
+
+    private Long clientMessageId;
 
     /**
      * 消费类型：广播类型、单播类型、请求类型、响应类型、心跳类型、断开连接类型、

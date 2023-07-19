@@ -1,10 +1,10 @@
 package org.example.websocket;
 
 import lombok.extern.slf4j.Slf4j;
+import org.example.pojo.bo.MessageBO;
 import org.example.pojo.dto.UserChatDTO;
 import org.example.pojo.exception.BusinessException;
 import org.example.pojo.exception.SystemException;
-import org.example.pojo.vo.MessageVO;
 
 import java.io.IOException;
 import java.util.Objects;
@@ -70,7 +70,7 @@ public class GlobalWsMap {
     /**
      * 发送给房间中的所有人
      */
-    public static void msgToThisRoom(MyWebSocket myWebSocket, MessageVO messageVO) {
+    public static void msgToThisRoom(MyWebSocket myWebSocket, MessageBO messageBO) {
     }
 
     /**
@@ -105,5 +105,19 @@ public class GlobalWsMap {
                 || Objects.isNull(myWebSocket.getUserId())) {
             throw new BusinessException("MyWebSocket参数缺失");
         }
+    }
+
+    public static MyWebSocket getWebSocketByUserId(Long userId) {
+        if (Objects.isNull(userId)) {
+            throw new BusinessException("userId不能为空");
+        }
+        return WS_GROUP.get(userId);
+    }
+
+    public static boolean isOnline(Long userId) {
+        if (Objects.isNull(userId)) {
+            throw new BusinessException("userId不能为空");
+        }
+        return WS_GROUP.containsKey(userId);
     }
 }

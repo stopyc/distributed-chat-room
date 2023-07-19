@@ -4,8 +4,9 @@ import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.example.event.AcceptMessageEvent;
 import org.example.factory.MessageFactory;
-import org.example.pojo.vo.MessageVO;
+import org.example.pojo.bo.MessageBO;
 import org.example.pojo.vo.WsMessageVO;
+import org.example.websocket.MyWebSocket;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
@@ -30,7 +31,9 @@ public class AcceptMessageListener {
     @EventListener(classes = AcceptMessageEvent.class)
     public void handleEvent(AcceptMessageEvent acceptMessageEvent) {
         WsMessageVO wsMessageVO = acceptMessageEvent.getWsMessageVO();
-        MessageVO messageVO = MessageFactory.generateMessageVo(wsMessageVO);
-        rabbitTemplate.convertAndSend("ws_fanout_exchange", "message.ws", JSONObject.toJSONString(messageVO));
+        MessageBO messageBO = MessageFactory.generateMessageVo(wsMessageVO);
+        rabbitTemplate.convertAndSend("ws_fanout_exchange", "message.ws", JSONObject.toJSONString(messageBO));
+        MyWebSocket myWebSocket = wsMessageVO.getMyWebSocket();
+        //TODO:ack
     }
 }

@@ -1,8 +1,10 @@
 package org.example.listener;
 
+import com.alibaba.fastjson.JSONObject;
 import com.rabbitmq.client.Channel;
 import lombok.extern.slf4j.Slf4j;
 import org.example.config.WsMessageMqConfig;
+import org.example.pojo.bo.MessageBO;
 import org.springframework.amqp.core.ExchangeTypes;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.Exchange;
@@ -41,8 +43,10 @@ public class MessageListener {
         try {
             String msg = new String(message.getBody(), StandardCharsets.UTF_8);
 
+            MessageBO messageBO = JSONObject.parseObject(msg, MessageBO.class);
+
             // 1.接受消息
-            log.info(" 队列 {} 接受到消息: {}", "messageExchange", msg);
+            log.info(" 队列 {} 接受到消息: {}", "messageExchange", messageBO);
 
             channel.basicAck(deliveryTag, true);
 
