@@ -31,7 +31,6 @@ public class AcceptMessageListener {
     public void handleEvent(AcceptMessageEvent acceptMessageEvent) {
         WsMessageVO wsMessageVO = acceptMessageEvent.getWsMessageVO();
         MessageVO messageVO = MessageFactory.generateMessageVo(wsMessageVO);
-        log.info("messageVO 为: {}", messageVO);
         rabbitTemplate.convertAndSend("ws_fanout_exchange", "message.ws", JSONObject.toJSONString(messageVO));
     }
 }

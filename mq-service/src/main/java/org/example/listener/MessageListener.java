@@ -2,7 +2,6 @@ package org.example.listener;
 
 import com.rabbitmq.client.Channel;
 import lombok.extern.slf4j.Slf4j;
-import org.example.config.RabbitMQConfig;
 import org.example.config.WsMessageMqConfig;
 import org.springframework.amqp.core.ExchangeTypes;
 import org.springframework.amqp.core.Message;
@@ -10,10 +9,8 @@ import org.springframework.amqp.rabbit.annotation.Exchange;
 import org.springframework.amqp.rabbit.annotation.Queue;
 import org.springframework.amqp.rabbit.annotation.QueueBinding;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 
@@ -29,7 +26,7 @@ public class MessageListener {
 
 
     /**
-     * 监听boot_queue队列,失败进行重试,一直失败进入死信队列.
+     * 监听ws_fanout_exchange交换机,失败进行进入死信队列进行重试
      */
     @RabbitListener(bindings = @QueueBinding(
             value = @Queue(), //切记： 此处无需设置队列名称，否在得话，多个消费者只有一个消费者能消费数据。其它消费者无法消费数据。
@@ -48,23 +45,6 @@ public class MessageListener {
             log.info(" 队列 {} 接受到消息: {}", "messageExchange", msg);
 
             channel.basicAck(deliveryTag, true);
-            //2. 处理业务逻辑
-            //isSuccessful = doBusiness(msg);
-            //
-            ////业务未成功
-            ////4.进行业务重试
-            //while (retryCount < MAX_RETRY_TIME && !isSuccessful) {
-            //    //4.1间隔一定时间
-            //    Thread.sleep(RETRY_INTERVAL * 1000);
-            //
-            //    //4.2重试次数++
-            //    retryCount++;
-            //
-            //    log.info("队列 {} 执行业务失败! 开始进行第 {} 次重试", RabbitMQConfig.QUEUE_NAME, retryCount);
-            //
-            //    //4.3 重试业务
-            //    isSuccessful = doBusiness(msg);
-            //}
 
             //防止业务处理的方法未能捕获业务异常
         } catch (Exception e) {
