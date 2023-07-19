@@ -1,16 +1,13 @@
 package org.example.interceptor;
 
-import feign.Request;
 import feign.RequestInterceptor;
 import feign.RequestTemplate;
-import org.apache.commons.codec.Charsets;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.Enumeration;
 
 import static org.example.constant.GlobalConstants.*;
 
@@ -27,6 +24,9 @@ public class InnerHeaderRequestInterceptor implements RequestInterceptor {
     public void apply(RequestTemplate template) {
 
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        if (attributes == null) {
+            return;
+        }
         HttpServletRequest request2 = attributes.getRequest();
         //1.获取上游请求头参数并封装到openfeign接口调用中
         Enumeration<String> headerNames = request2.getHeaderNames();
