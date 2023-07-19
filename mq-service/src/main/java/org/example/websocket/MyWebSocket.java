@@ -1,6 +1,7 @@
 package org.example.websocket;
 
 import cn.hutool.extra.spring.SpringUtil;
+import com.alibaba.fastjson.JSONObject;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -24,7 +25,7 @@ import java.io.IOException;
  * @author: stop.yc
  * @create: 2022-09-09 20:11
  **/
-@ServerEndpoint(value = "/ws/{token}/{type}")
+@ServerEndpoint(value = "/ws/{token}")
 @Slf4j
 @Component
 @EqualsAndHashCode(callSuper = false)
@@ -91,35 +92,19 @@ public class MyWebSocket {
     @OnMessage
     public void onMessage(Session session,
                           String message,
-                          @PathParam("token") String token,
-                          @PathParam("type") Integer messageType) {
-        WsMessageVO wsMessageVO = WsMessageVO.builder()
-                .fromUserId(this.userId)
-                .messageType(messageType)
-                .message(message)
-                .serverTime(System.currentTimeMillis())
-                .build();
+                          @PathParam("token") String token) {
+        WsMessageVO wsMessageVO = getWsMessageVO(message);
         publisherUtil.acceptMessage(this, wsMessageVO);
     }
-
-    @OnMessage
-    public void onBinaryMessage(byte[] message,
-                                Session session,
-                                @PathParam("token") String token,
-                                @PathParam("type") Integer messageType) throws IOException {
-        // 处理二进制消息
-        WsMessageVO wsMessageVO = WsMessageVO.builder()
-                .fromUserId(this.userId)
-                .messageType(messageType)
-                .binaryMessage(message)
-                .serverTime(System.currentTimeMillis())
-                .build();
-        publisherUtil.acceptMessage(this, wsMessageVO);
-    }
-
 
     private void throwError(Session session, String message) {
         session.getAsyncRemote().sendText(message);
         throw new BusinessException(message);
+    }
+
+    private WsMessageVO getWsMessageVO(String message) {
+        WsMessageVO wsMessageVO = JSONObject.parseObject(message, WsMessageVO.class);
+        wsMessageVO.setFromUserId(this.userId);
+        return wsMessageVO;
     }
 }

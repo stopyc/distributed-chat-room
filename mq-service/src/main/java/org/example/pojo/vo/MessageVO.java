@@ -11,7 +11,7 @@ import java.io.Serializable;
  * @create: 2023-04-20 12:21
  **/
 @Data
-public abstract class MessageVO implements Serializable {
+public class MessageVO implements Serializable {
 
     private Long messageId;
 
@@ -36,7 +36,27 @@ public abstract class MessageVO implements Serializable {
     private Long fromUserId;
 
     /**
-     * 消息内容
+     * 消息内容text
      */
-    private MessageContent messageContent;
+    private String message;
+
+    /**
+     * 消息内容byte[]
+     */
+    private byte[] byteArray;
+
+    /**
+     * 群聊id
+     */
+    private Long chatRoomId;
+
+    /**
+     * 是文本还是二进制数据,这里目前使用Base64编码
+     */
+    private Boolean isText;
+
+    /**
+     * 接收者的id
+     */
+    private Long toUserId;
 }

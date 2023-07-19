@@ -12,13 +12,32 @@ import lombok.Data;
 @Data
 @Builder
 public class WsMessageVO {
+
     private Integer messageType;
 
     private Long fromUserId;
 
+    /**
+     * 是文本还是二进制数据,这里目前使用Base64编码
+     */
+    private Boolean isText;
+
     private String message;
 
-    private byte[] binaryMessage;
+    private byte[] byteArray;
 
-    private Long serverTime;
+    /**
+     * 客户端时间戳,可能会快或者慢
+     */
+    private Long clientTime;
+
+    /**
+     * 群聊id
+     */
+    private Long chatRoomId;
+
+    /**
+     * 接收者的id
+     */
+    private Long toUserId;
 }
