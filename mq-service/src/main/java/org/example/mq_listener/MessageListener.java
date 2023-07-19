@@ -1,4 +1,4 @@
-package org.example.listener;
+package org.example.mq_listener;
 
 import com.alibaba.fastjson.JSONObject;
 import com.rabbitmq.client.Channel;

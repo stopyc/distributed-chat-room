@@ -1,8 +1,6 @@
-package org.example.listener;
+package org.example.event_listener;
 
-import cn.hutool.core.lang.hash.Hash;
 import org.example.util.GateWayHashUtils;
-import org.example.util.RedisUtils;
 import org.example.util.hashring_util.HashRing;
 import org.example.util.hashring_util.Server;
 import org.example.util.hashring_util.support.HashRingRedis;

@@ -1,20 +1,13 @@
-package org.example.listener;
+package org.example.event_listener;
 
-import com.alibaba.fastjson2.JSONObject;
 import com.rabbitmq.client.Channel;
 import lombok.extern.slf4j.Slf4j;
 import org.example.config.RabbitMQConfig;
-import org.example.constant.MonitorType;
-import org.example.pojo.dto.Monitor;
-import org.example.pojo.dto.MyException;
-import org.example.pojo.dto.ServiceLink;
-import org.example.util.GateWayHashUtils;
 import org.example.util.hashring_util.HashRing;
 import org.example.util.hashring_util.Server;
 import org.example.util.hashring_util.support.HashRingRedis;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

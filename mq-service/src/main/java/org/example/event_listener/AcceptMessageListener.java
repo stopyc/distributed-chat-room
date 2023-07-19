@@ -1,4 +1,4 @@
-package org.example.listener;
+package org.example.event_listener;
 
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;

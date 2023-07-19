@@ -1,4 +1,4 @@
-package org.example.listener;
+package org.example.event_listener;
 
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
