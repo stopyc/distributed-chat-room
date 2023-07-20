@@ -8,11 +8,15 @@ package org.example.constant;
  */
 public class RedisKey {
 
-    /** 用户登录缓存 */
+    /**
+     * 用户登录缓存
+     */
     public static final String LOGOUT_KEY = "logout:";
 
     public static final String REQUEST_ID_PREFIX = "requestId:";
 
     public static final String MESSAGE_KEY = "message:";
+
+    public static final String ACK_MESSAGE_KEY = "ack:message:";
 
 }

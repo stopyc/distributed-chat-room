@@ -16,6 +16,11 @@ import lombok.NoArgsConstructor;
 public class MessageAck {
     private Long clientMessageId;
 
+    /**
+     * 0:消息接收的ack,1:还是是消息被成功处理的ack,也就是被客户端收到
+     */
+    private Integer messageType;
+
     private Long fromUserId;
 
     private Long serverTime;
