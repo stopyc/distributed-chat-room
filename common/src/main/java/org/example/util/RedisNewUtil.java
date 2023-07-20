@@ -1,0 +1,70 @@
+package org.example.util;
+
+import cn.hutool.extra.spring.SpringUtil;
+import com.alibaba.fastjson.JSONObject;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
+import org.springframework.data.redis.core.script.RedisScript;
+
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
+
+/**
+ * @program: chat-room
+ * @description: 新的redis工具列
+ * @author: stop.yc
+ * @create: 2023-07-19 16:22
+ **/
+@Slf4j
+public class RedisNewUtil {
+    private static final String LUA_INCR_EXPIRE =
+            "local key,ttl=KEYS[1],ARGV[1] \n" +
+                    " \n" +
+                    "if redis.call('EXISTS',key)==0 then   \n" +
+                    "  redis.call('SETEX',key,ttl,1) \n" +
+                    "  return 1 \n" +
+                    "else \n" +
+                    "  return tonumber(redis.call('INCR',key)) \n" +
+                    "end ";
+    private static RedisTemplate redisTemplate;
+
+    static {
+        RedisNewUtil.redisTemplate = SpringUtil.getBean("objectRedisTemplate", RedisTemplate.class);
+    }
+
+    public static <T> List<T> mget(Collection<String> keys, Class<T> tClass) {
+        List<Object> list = redisTemplate.opsForValue().multiGet(keys);
+        if (Objects.isNull(list)) {
+            return new ArrayList<>();
+        }
+        return list.stream().map(o -> toBeanOrNull(o, tClass)).collect(Collectors.toList());
+    }
+
+    public static Long inc(String key, int time, TimeUnit unit) {
+        RedisScript<Long> redisScript = new DefaultRedisScript<>(LUA_INCR_EXPIRE, Long.class);
+        Object execute = redisTemplate.execute(redisScript, Collections.singletonList(key), String.valueOf(unit.toSeconds(time)));
+        return (Long) execute;
+    }
+
+    static <T> T toBeanOrNull(Object json, Class<T> tClass) {
+        return json == null ? null : JSONObject.parseObject((String) json, tClass);
+    }
+
+    public static void sput(String redisPrefix, Object key, Object object) {
+        redisTemplate.opsForSet().add(redisPrefix + key.toString(), JSONObject.toJSONString(object));
+    }
+
+    public static <T> Set<T> sget(String redisPrefix, Object key, Class<T> tClass) {
+        Set<Object> members = redisTemplate.opsForSet().members(redisPrefix + key.toString());
+        if (Objects.isNull(members)) {
+            return new HashSet<>();
+        }
+        return members.parallelStream().map(o -> toBeanOrNull(o, tClass)).collect(Collectors.toSet());
+    }
+
+    public static void zput(String redisPrefix, Object key, Object object, double score) {
+        redisTemplate.opsForZSet().add(redisPrefix + key.toString(), JSONObject.toJSONString(object), score);
+    }
+}

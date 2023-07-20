@@ -1,13 +1,19 @@
 package org.example.config;
 
+import cn.hutool.core.bean.BeanUtil;
+import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.amqp.core.*;
+import org.example.mq.correlationData.MyMessageCorrelationData;
+import org.example.pojo.dto.MessageAck;
+import org.example.util.Assert;
+import org.example.websocket.GlobalWsMap;
+import org.springframework.amqp.core.AcknowledgeMode;
+import org.springframework.amqp.core.ReturnedMessage;
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
 import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.RabbitListenerContainerFactory;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -80,11 +86,26 @@ public class RabbitMQConfig {
          * cause: 失败原因
          */
         rabbitTemplate.setConfirmCallback((correlationData, ack, cause) -> {
+            //自定义消息确认回文
+            MyMessageCorrelationData myMessageCorrelationData = (MyMessageCorrelationData) correlationData;
+            //check
+            Assert.assertNotNull(myMessageCorrelationData, "myMessageCorrelationData 为空");
+            //谁发的这条消息
+            Long fromUserId = myMessageCorrelationData.getFromUserId();
+            //封装消息ack
+            MessageAck messageAck = BeanUtil.copyProperties(myMessageCorrelationData, MessageAck.class);
+            //消息成功发送到交换,表示客户端的消息已经成功地被服务器保存了,但是不代表消息被客户端成功接收
             if (ack) {
-                //成功
+                messageAck.setAck(true);
+                //发送ack
+                log.info("消息id为 {} 发送到交换机中成功, 向用户id为: {} 发送ack",
+                        myMessageCorrelationData.getMessageId(), myMessageCorrelationData.getFromUserId());
             } else {
+                //不重试, 直接nack,发送交换机失败很大程度是网络问题, 可能拥塞之类的,不如让客户端重试
+                messageAck.setAck(false);
                 log.error("消息发送到交换机中失败,错误原因为: {}", cause);
             }
+            GlobalWsMap.sendText(fromUserId, JSONObject.toJSONString(messageAck));
         });
         return rabbitTemplate;
     }

@@ -85,7 +85,15 @@ public class GlobalWsMap {
         //...
     }
 
-    private static void sendText(MyWebSocket myWebSocket, String text) {
+    public static void sendText(MyWebSocket myWebSocket, String text) {
+        myWebSocket.getSession().getAsyncRemote().sendText(text);
+    }
+
+    public static void sendText(Long userId, String text) {
+        MyWebSocket myWebSocket = WS_GROUP.get(userId);
+        if (Objects.isNull(myWebSocket)) {
+            throw new BusinessException("该用户不在线");
+        }
         myWebSocket.getSession().getAsyncRemote().sendText(text);
     }
 

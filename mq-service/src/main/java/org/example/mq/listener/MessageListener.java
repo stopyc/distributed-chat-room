@@ -1,4 +1,4 @@
-package org.example.mq_listener;
+package org.example.mq.listener;
 
 import com.alibaba.fastjson.JSONObject;
 import com.rabbitmq.client.Channel;
@@ -47,7 +47,7 @@ public class MessageListener {
 
             // 1.接受消息
             log.info(" 队列 {} 接受到消息: {}", "messageExchange", messageBO);
-
+            Thread.sleep(10000L);
             channel.basicAck(deliveryTag, true);
 
             //防止业务处理的方法未能捕获业务异常

@@ -17,7 +17,7 @@ public class Assert {
      * @param obj: Object
      * @param msg: String
      */
-    public void assertNotNull(Object obj, String msg) {
+    public static void assertNotNull(Object obj, String msg) {
         if (obj == null) {
             throw new BusinessException(msg);
         }
@@ -28,7 +28,7 @@ public class Assert {
      *
      * @param obj: Object
      */
-    public void assertNotNull(Object obj) {
+    public static void assertNotNull(Object obj) {
         if (obj == null) {
             throw new BusinessException("对象不能为空");
         }
@@ -40,19 +40,19 @@ public class Assert {
      * @param str: String
      * @param msg: 报错提示信息
      */
-    public void assertNotEmpty(String str, String msg) {
+    public static void assertNotEmpty(String str, String msg) {
         if (str == null || str.trim().length() == 0) {
             throw new BusinessException(msg);
         }
     }
 
-    public void assertNotEmpty(String str) {
+    public static void assertNotEmpty(String str) {
         if (str == null || str.trim().length() == 0) {
             throw new BusinessException("字符串不能为空");
         }
     }
 
-    public void assertNotEmpty(String str, Executor executor) {
+    public static void assertNotEmpty(String str, Executor executor) {
         if (str == null || str.trim().length() == 0) {
             executor.execute();
             throw new BusinessException("字符串不能为空");

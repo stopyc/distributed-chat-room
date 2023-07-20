@@ -46,7 +46,7 @@ public class MessageFactory {
             throw new SystemException(e.getMessage());
         }
         begin = System.currentTimeMillis() - begin;
-        log.info("begin 为: {}", begin);
+        log.debug("begin 为: {}", begin);
         messageBO.setMessageId(snowflakeId);
         if (messageBO.getIsText()) {
             messageBO.setMessage(messageBO.getMessage());

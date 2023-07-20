@@ -10,19 +10,19 @@ import java.util.concurrent.CompletableFuture;
  * @author YC104
  */
 @Getter
-public class AcceptMessageEvent extends ApplicationEvent {
+public class PushWsMessageEvent extends ApplicationEvent {
 
     private final WsMessageVO wsMessageVO;
 
     private CompletableFuture<WsMessageVO> future;
 
-    public AcceptMessageEvent(Object source, CompletableFuture<WsMessageVO> future, WsMessageVO wsMessageVO) {
+    public PushWsMessageEvent(Object source, CompletableFuture<WsMessageVO> future, WsMessageVO wsMessageVO) {
         super(source);
         this.wsMessageVO = wsMessageVO;
         this.future = future;
     }
 
-    public AcceptMessageEvent(Object source, WsMessageVO wsMessageVO) {
+    public PushWsMessageEvent(Object source, WsMessageVO wsMessageVO) {
         super(source);
         this.wsMessageVO = wsMessageVO;
     }

@@ -1,7 +1,7 @@
 package org.example.utils;
 
 import lombok.extern.slf4j.Slf4j;
-import org.example.event.AcceptMessageEvent;
+import org.example.event.PushWsMessageEvent;
 import org.example.event.UserOfflineEvent;
 import org.example.event.UserOnlineEvent;
 import org.example.pojo.vo.WsMessageVO;
@@ -33,6 +33,6 @@ public class PublisherUtil {
     }
 
     public void acceptMessage(Object source, WsMessageVO wsMessageVO) {
-        eventPublisher.publishEvent(new AcceptMessageEvent(source, wsMessageVO));
+        eventPublisher.publishEvent(new PushWsMessageEvent(source, wsMessageVO));
     }
 }

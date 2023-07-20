@@ -15,7 +15,6 @@ public class MessageBO implements Serializable {
 
     private Long messageId;
 
-
     private Long clientMessageId;
 
     /**
