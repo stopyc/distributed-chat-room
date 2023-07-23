@@ -75,6 +75,7 @@ public class PushWsMessageListener {
                             RedisConstant.ACK_EXPIRATION_TIME,
                             TimeUnit.SECONDS);
                     redisMbo = messageBO;
+                    me().push2Mq(messageBO);
                 }
             }
             //直接返回ack
