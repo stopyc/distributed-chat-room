@@ -10,6 +10,7 @@ import org.springframework.data.redis.listener.RedisMessageListenerContainer;
 
 /**
  * @author YC104
+ * @description: Redis过期事件监听配置类
  */
 @Configuration
 public class RedisListenerConfig {
