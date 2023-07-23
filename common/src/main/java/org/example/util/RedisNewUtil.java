@@ -83,6 +83,10 @@ public class RedisNewUtil {
         redisTemplate.opsForValue().set(redisPrefix + key.toString(), JSONObject.toJSONString(value), time, unit);
     }
 
+    public static void del(String redisPrefix, Object key) {
+        redisTemplate.delete(redisPrefix + key.toString());
+    }
+
     public static void put(String redisPrefix, Object key, Object value) {
         redisTemplate.opsForValue().set(redisPrefix + key.toString(), JSONObject.toJSONString(value));
     }
@@ -106,5 +110,9 @@ public class RedisNewUtil {
             return Collections.emptySet();
         }
         return set.parallelStream().map(o -> toBeanOrNull(o, tClass)).collect(Collectors.toSet());
+    }
+
+    public static void expire(String redisPrefix, Object key, long time, TimeUnit unit) {
+        redisTemplate.expire(redisPrefix + key.toString(), time, unit);
     }
 }

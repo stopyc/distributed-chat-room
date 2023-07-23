@@ -27,4 +27,8 @@ public class MyMessageCorrelationData extends CorrelationData {
     private Long serverTime;
 
     private Long clientTime;
+
+    private Boolean success;
+
+    private String throwableMsg;
 }

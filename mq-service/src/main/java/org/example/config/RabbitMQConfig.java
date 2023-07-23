@@ -1,12 +1,9 @@
 package org.example.config;
 
-import cn.hutool.core.bean.BeanUtil;
-import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
+import org.example.event.PushWsMessage2ExchangeEvent;
 import org.example.mq.correlationData.MyMessageCorrelationData;
-import org.example.pojo.dto.MessageAck;
 import org.example.util.Assert;
-import org.example.websocket.GlobalWsMap;
 import org.springframework.amqp.core.AcknowledgeMode;
 import org.springframework.amqp.core.ReturnedMessage;
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
@@ -14,8 +11,11 @@ import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.listener.RabbitListenerContainerFactory;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+
+import javax.annotation.Resource;
 
 /**
  * @program: chat-room
@@ -33,6 +33,8 @@ public class RabbitMQConfig {
     public static final String X_DEAD_LETTER_ROUTING_KEY = "x-dead-letter-routing-key";
     public static final String X_MAX_LENGTH = "x-max-length";
 
+    @Resource
+    private ApplicationEventPublisher eventPublisher;
 
     @Bean
     public RabbitListenerContainerFactory<?> rabbitListenerContainerFactory(ConnectionFactory connectionFactory) {
@@ -91,21 +93,16 @@ public class RabbitMQConfig {
             //check
             Assert.assertNotNull(myMessageCorrelationData, "myMessageCorrelationData 为空");
             //谁发的这条消息
-            Long fromUserId = myMessageCorrelationData.getFromUserId();
-            //封装消息ack
-            MessageAck messageAck = BeanUtil.copyProperties(myMessageCorrelationData, MessageAck.class);
-            //消息成功发送到交换,表示客户端的消息已经成功地被服务器保存了,但是不代表消息被客户端成功接收
+            //消息成功发送到交换,表示客户端的消息已经成功地发送到交换机中,这里把redis的ack队列的对应的消息ack掉,表示不需要超时重试
             if (ack) {
-                messageAck.setAck(true);
                 //发送ack
-                log.info("消息id为 {} 发送到交换机中成功, 向用户id为: {} 发送ack",
-                        myMessageCorrelationData.getMessageId(), myMessageCorrelationData.getFromUserId());
+                myMessageCorrelationData.setSuccess(true);
+                eventPublisher.publishEvent(new PushWsMessage2ExchangeEvent(this, myMessageCorrelationData));
             } else {
-                //不重试, 直接nack,发送交换机失败很大程度是网络问题, 可能拥塞之类的,不如让客户端重试
-                messageAck.setAck(false);
-                log.error("消息发送到交换机中失败,错误原因为: {}", cause);
+                myMessageCorrelationData.setSuccess(false);
+                myMessageCorrelationData.setThrowableMsg(cause);
+                eventPublisher.publishEvent(new PushWsMessage2ExchangeEvent(this, myMessageCorrelationData));
             }
-            GlobalWsMap.sendText(fromUserId, JSONObject.toJSONString(messageAck));
         });
         return rabbitTemplate;
     }

@@ -4,12 +4,14 @@ import cn.hutool.core.bean.BeanUtil;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.example.config.WsMessageMqConfig;
+import org.example.constant.RedisConstant;
 import org.example.constant.RedisKey;
 import org.example.event.PushWsMessageEvent;
 import org.example.factory.MessageFactory;
 import org.example.mq.correlationData.MyMessageCorrelationData;
 import org.example.pojo.bo.MessageBO;
 import org.example.pojo.dto.MessageAck;
+import org.example.pojo.exception.SystemException;
 import org.example.pojo.vo.WsMessageVO;
 import org.example.util.RedisNewUtil;
 import org.example.utils.MessageAckUtil;
@@ -19,9 +21,11 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
+import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -49,16 +53,36 @@ public class PushWsMessageListener {
     public void handleEvent(PushWsMessageEvent pushWsMessageEvent) {
         //服务器收到消息,先判断这个消息是否之前已经收到了
         WsMessageVO wsMessageVO = pushWsMessageEvent.getWsMessageVO();
-        MessageBO redisMbo = RedisNewUtil.get(RedisKey.ACK_MESSAGE_KEY,
-                wsMessageVO.getFromUserId() + ":" + wsMessageVO.getClientMessageId(),
-                MessageBO.class);
-        if (!Objects.isNull(redisMbo)) {
-            log.info("客户端消息为 {} 的消息已经收到过了,直接返回ack!", redisMbo.getClientMessageId());
+
+        Set<MessageBO> durableMsg = RedisNewUtil.zget(RedisKey.MESSAGE_KEY, wsMessageVO.getFromUserId(), wsMessageVO.getClientMessageId(), MessageBO.class);
+        if (!CollectionUtils.isEmpty(durableMsg)) {
+            //持久队列该消息不为空,表示之前收到过了,但是可能ack消息丢失了,或者ack消息还没来得及发送,或者最终的业务ack消息发送失败了
+            MessageBO redisMbo = RedisNewUtil.get(RedisKey.ACK_MESSAGE_KEY,
+                    wsMessageVO.getFromUserId() + ":" + wsMessageVO.getClientMessageId(),
+                    MessageBO.class);
+            if (!Objects.isNull(redisMbo)) {
+                //持久化队列里面有,ack队列里面也有,等待ack队列操作即可
+                log.info("客户端消息为 {} 的消息已经收到过了,直接返回ack!", redisMbo.getClientMessageId());
+            } else {
+                //Redis的Ack队列
+                if (durableMsg.size() > 1) {
+                    throw new SystemException("redis中的消息队列中的客户端消息id 为 " + wsMessageVO.getClientMessageId() + " 不止一条,请检查!");
+                }
+                for (MessageBO messageBO : durableMsg) {
+                    RedisNewUtil.put(RedisKey.ACK_MESSAGE_KEY,
+                            messageBO.getFromUserId() + ":" + messageBO.getClientMessageId(),
+                            messageBO,
+                            RedisConstant.ACK_EXPIRATION_TIME,
+                            TimeUnit.SECONDS);
+                    redisMbo = messageBO;
+                }
+            }
             //直接返回ack
             MessageAck messageAck = MessageAckUtil.getMessageAck(redisMbo);
             GlobalWsMap.sendText(redisMbo.getFromUserId(), JSONObject.toJSONString(messageAck));
             return;
         }
+
         //生成封装消息传输对象
         MessageBO messageBO = MessageFactory.generateMessageVo(wsMessageVO);
         try {
@@ -69,16 +93,16 @@ public class PushWsMessageListener {
             RedisNewUtil.put(RedisKey.ACK_MESSAGE_KEY,
                     messageBO.getFromUserId() + ":" + messageBO.getClientMessageId(),
                     messageBO,
-                    24L,
-                    TimeUnit.HOURS);
+                    RedisConstant.ACK_EXPIRATION_TIME,
+                    TimeUnit.SECONDS);
             MessageAck messageAck = MessageAckUtil.getMessageAck(messageBO);
             GlobalWsMap.sendText(messageBO.getFromUserId(), JSONObject.toJSONString(messageAck));
+            me().push2Mq(messageBO);
         } catch (Exception e) {
             MessageAck messageAck = MessageAckUtil.getMessageNak(messageBO);
             GlobalWsMap.sendText(messageBO.getFromUserId(), JSONObject.toJSONString(messageAck));
             log.error("消息保存到redis失败!发送消息nak!");
         }
-        //me().push2Mq(messageBO);
     }
 
     @Async
