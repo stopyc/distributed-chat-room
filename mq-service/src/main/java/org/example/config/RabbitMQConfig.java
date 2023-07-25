@@ -3,7 +3,6 @@ package org.example.config;
 import lombok.extern.slf4j.Slf4j;
 import org.example.event.PushWsMessage2ExchangeEvent;
 import org.example.mq.correlationData.MyMessageCorrelationData;
-import org.example.util.Assert;
 import org.springframework.amqp.core.AcknowledgeMode;
 import org.springframework.amqp.core.ReturnedMessage;
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
@@ -91,7 +90,9 @@ public class RabbitMQConfig {
             //自定义消息确认回文
             MyMessageCorrelationData myMessageCorrelationData = (MyMessageCorrelationData) correlationData;
             //check
-            Assert.assertNotNull(myMessageCorrelationData, "myMessageCorrelationData 为空");
+            if (myMessageCorrelationData == null) {
+                return;
+            }
             //谁发的这条消息
             //消息成功发送到交换,表示客户端的消息已经成功地发送到交换机中,这里把redis的ack队列的对应的消息ack掉,表示不需要超时重试
             if (ack) {

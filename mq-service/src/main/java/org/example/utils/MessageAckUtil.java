@@ -15,6 +15,8 @@ public class MessageAckUtil {
         MessageDTO mack = BeanUtil.copyProperties(messageBO, MessageDTO.class);
         mack.setAck(true);
         mack.setMessageType(0);
+        mack.setMessage(null);
+        mack.setByteArray(null);
         return mack;
     }
 
@@ -22,6 +24,8 @@ public class MessageAckUtil {
         MessageDTO mack = BeanUtil.copyProperties(messageBO, MessageDTO.class);
         mack.setAck(true);
         mack.setMessageType(1);
+        mack.setMessage(null);
+        mack.setByteArray(null);
         return mack;
     }
 
@@ -29,6 +33,8 @@ public class MessageAckUtil {
         MessageDTO mack = BeanUtil.copyProperties(messageBO, MessageDTO.class);
         mack.setAck(false);
         mack.setMessageType(0);
+        mack.setMessage(null);
+        mack.setByteArray(null);
         return mack;
     }
 
@@ -36,6 +42,8 @@ public class MessageAckUtil {
         MessageDTO mack = BeanUtil.copyProperties(messageBO, MessageDTO.class);
         mack.setAck(false);
         mack.setMessageType(1);
+        mack.setMessage(null);
+        mack.setByteArray(null);
         return mack;
     }
 }

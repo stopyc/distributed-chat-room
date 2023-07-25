@@ -139,11 +139,14 @@ public class GlobalWsMap {
         return WS_GROUP.containsKey(userId);
     }
 
-    public static void sendText(Set<Long> userIdSet, MessageDTO messageDTO) {
+    public static void sendText(Set<Long> userIdSet, MessageDTO messageDTO, Long fromUserId) {
         if (CollectionUtils.isEmpty(userIdSet)) {
             return;
         }
         for (Long userId : userIdSet) {
+            if (Objects.equals(userId, fromUserId)) {
+                continue;
+            }
             sendText(userId, messageDTO);
         }
     }

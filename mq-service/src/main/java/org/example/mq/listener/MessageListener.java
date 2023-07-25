@@ -6,6 +6,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.config.WsMessageMqConfig;
 import org.example.event.ReceiveWsMessageEvent;
 import org.example.pojo.bo.MessageBO;
+import org.example.pojo.dto.MessageDTO;
+import org.example.utils.MessageAckUtil;
+import org.example.websocket.GlobalWsMap;
 import org.springframework.amqp.core.ExchangeTypes;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.Exchange;
@@ -54,19 +57,15 @@ public class MessageListener {
             MessageBO messageBO = JSONObject.parseObject(msg, MessageBO.class);
             // 1.接受消息
             log.info("交换机 {} 接受到消息: {}", WS_EXCHANGE_NAME, messageBO);
+            //Business ack
+            boolean success = doBusiness(messageBO);
 
-            CompletableFuture<Boolean> future = new CompletableFuture<>();
-            eventPublisher.publishEvent(new ReceiveWsMessageEvent(this, future, messageBO));
-            CompletableFuture.allOf(future);
-            Boolean success = future.get();
             if (success) {
                 channel.basicAck(deliveryTag, true);
-                //TODO: bussinessACK
             } else {
                 log.info("广播队列 {} 重试后依旧失败,进入死信队列", WsMessageMqConfig.WS_QUEUE_NAME);
                 channel.basicNack(deliveryTag, true, false);
             }
-
 
             //防止业务处理的方法未能捕获业务异常
         } catch (Exception e) {
@@ -78,14 +77,21 @@ public class MessageListener {
     /**
      * 执行正常队列的业务处理
      */
-    private boolean doBusiness(String msg) {
+    private boolean doBusiness(MessageBO messageBO) {
         try {
-
+            if (messageBO.getMessageType() == 1) {
+                MessageDTO businessMessageAck = MessageAckUtil.getBusinessMessageAck(messageBO);
+                GlobalWsMap.sendText(messageBO.getFromUserId(), businessMessageAck);
+                return true;
+            } else {
+                CompletableFuture<Boolean> future = new CompletableFuture<>();
+                eventPublisher.publishEvent(new ReceiveWsMessageEvent(this, future, messageBO));
+                CompletableFuture.allOf(future);
+                return future.get();
+            }
         } catch (Exception e) {
             e.printStackTrace();
             return false;
         }
-
-        return true;
     }
 }

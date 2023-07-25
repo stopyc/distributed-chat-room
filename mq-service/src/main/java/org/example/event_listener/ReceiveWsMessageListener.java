@@ -1,7 +1,9 @@
 package org.example.event_listener;
 
+import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.example.adapter.MessageBO2MessageDTO;
+import org.example.config.WsMessageMqConfig;
 import org.example.event.ReceiveWsMessageEvent;
 import org.example.pojo.bo.MessageBO;
 import org.example.pojo.dto.MessageDTO;
@@ -45,7 +47,12 @@ public class ReceiveWsMessageListener {
                 //3. 群发直接调用进行发送即可
                 MessageDTO messageDTO = MessageBO2MessageDTO.getMessageDTO(messageBO, 6);
                 Set<Long> userIdSet = MessageBO2MessageDTO.getUserIdSetByChatRoomId(messageDTO.getChatRoomId());
-                GlobalWsMap.sendText(userIdSet, messageDTO);
+                GlobalWsMap.sendText(userIdSet, messageDTO, messageBO.getFromUserId());
+            }
+            messageBO.setMessageType(1);
+            //谁处理谁back
+            if (GlobalWsMap.isOnline(messageBO.getFromUserId())) {
+                rabbitTemplate.convertAndSend(WsMessageMqConfig.WS_EXCHANGE_NAME, "message.ws", JSONObject.toJSONString(messageBO));
             }
             receiveWsMessageEvent.getFuture().complete(true);
         } catch (Exception e) {
