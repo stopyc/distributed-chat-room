@@ -59,7 +59,13 @@ public class MyWebSocket {
     public void onOpen(Session session,
                        @PathParam("token") String token) {
         checkToken(token, session);
-        UserBO userBO = JWTUtils.parseJWT2UserBo(token);
+        UserBO userBO = null;
+        try {
+            userBO = JWTUtils.parseJWT2UserBo(token);
+        } catch (BusinessException e) {
+            throwError(session, e.getMessage());
+            throw new BusinessException(e.getMessage());
+        }
         this.userId = userBO.getUserId();
         this.session = session;
         this.userBO = userBO;
@@ -99,6 +105,13 @@ public class MyWebSocket {
 
     private void throwError(Session session, String message) {
         session.getAsyncRemote().sendText(message);
+        try {
+            if (session.isOpen()) {
+                session.close();
+            }
+        } catch (IOException e) {
+            throw new BusinessException(e.getMessage());
+        }
         throw new BusinessException(message);
     }
 

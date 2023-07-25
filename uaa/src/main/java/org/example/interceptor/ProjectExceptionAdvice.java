@@ -69,6 +69,7 @@ public class ProjectExceptionAdvice {
     @ExceptionHandler(value = {MethodArgumentNotValidException.class})
     public ResultVO doMethodArgumentNotValidException(MethodArgumentNotValidException  e){
 
+        e.printStackTrace();
         log.error("异常:{}", e.getMessage());
 
         BindingResult bindingResult = e.getBindingResult();
@@ -116,6 +117,7 @@ public class ProjectExceptionAdvice {
      */
     @ExceptionHandler(value = {AuthenticationException.class})
     public ResultVO doAuthenticationException(AuthenticationException  ex){
+        ex.printStackTrace();
         log.error("异常: {}", ex.getMessage());
         return ResultVO.fail(AUTHENTICATION_FAILED,ex.getMessage());
     }
@@ -123,7 +125,8 @@ public class ProjectExceptionAdvice {
     /** 除了自定义的异常处理器，保留对Exception类型的异常处理，用于处理非预期的异常 **/
     @ExceptionHandler(Exception.class)
     public ResultVO doOtherException(Exception ex){
-        log.error("异常:{}",ex.getMessage());
+        ex.printStackTrace();
+        log.error("异常:{}", ex.getMessage());
 
 
         //单独一个认证异常的处理

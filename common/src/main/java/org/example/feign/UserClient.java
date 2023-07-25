@@ -1,7 +1,5 @@
 package org.example.feign;
 
-import feign.Headers;
-import org.example.annotation.Inner;
 import org.example.config.FeignConfiguration;
 import org.example.pojo.dto.ResultDTO;
 import org.example.pojo.vo.ResultVO;
@@ -25,9 +23,13 @@ public interface UserClient {
 
     /**
      * 内部开放接口,通过用户id获取用户对象
+     *
      * @param userId: 用户id
      * @return :用户对象
      */
     @GetMapping("/user/inner/getById")
-    ResultDTO getById(@RequestParam("userId") Long userId) ;
+    ResultDTO getById(@RequestParam("userId") Long userId);
+
+    @GetMapping("/chatRoom/inner/{chatRoomId}")
+    ResultVO getUserSetByChatRoomId(@PathVariable("chatRoomId") Long chatRoomId);
 }

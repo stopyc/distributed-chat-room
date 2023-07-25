@@ -10,7 +10,7 @@ import org.example.event.PushWsMessageEvent;
 import org.example.factory.MessageFactory;
 import org.example.mq.correlationData.MyMessageCorrelationData;
 import org.example.pojo.bo.MessageBO;
-import org.example.pojo.dto.MessageAck;
+import org.example.pojo.dto.MessageDTO;
 import org.example.pojo.exception.SystemException;
 import org.example.pojo.vo.WsMessageVO;
 import org.example.util.RedisNewUtil;
@@ -79,8 +79,8 @@ public class PushWsMessageListener {
                 }
             }
             //直接返回ack
-            MessageAck messageAck = MessageAckUtil.getMessageAck(redisMbo);
-            GlobalWsMap.sendText(redisMbo.getFromUserId(), JSONObject.toJSONString(messageAck));
+            MessageDTO messageAck = MessageAckUtil.getMessageAck(redisMbo);
+            GlobalWsMap.sendText(redisMbo.getFromUserId(), messageAck);
             return;
         }
 
@@ -96,12 +96,12 @@ public class PushWsMessageListener {
                     messageBO,
                     RedisConstant.ACK_EXPIRATION_TIME,
                     TimeUnit.SECONDS);
-            MessageAck messageAck = MessageAckUtil.getMessageAck(messageBO);
-            GlobalWsMap.sendText(messageBO.getFromUserId(), JSONObject.toJSONString(messageAck));
+            MessageDTO messageAck = MessageAckUtil.getMessageAck(messageBO);
+            GlobalWsMap.sendText(messageBO.getFromUserId(), messageAck);
             me().push2Mq(messageBO);
         } catch (Exception e) {
-            MessageAck messageAck = MessageAckUtil.getMessageNak(messageBO);
-            GlobalWsMap.sendText(messageBO.getFromUserId(), JSONObject.toJSONString(messageAck));
+            MessageDTO messageAck = MessageAckUtil.getMessageNak(messageBO);
+            GlobalWsMap.sendText(messageBO.getFromUserId(), messageAck);
             log.error("消息保存到redis失败!发送消息nak!");
         }
     }

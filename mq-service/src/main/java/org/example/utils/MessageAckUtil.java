@@ -2,7 +2,7 @@ package org.example.utils;
 
 import cn.hutool.core.bean.BeanUtil;
 import org.example.pojo.bo.MessageBO;
-import org.example.pojo.dto.MessageAck;
+import org.example.pojo.dto.MessageDTO;
 
 /**
  * @program: chat-room
@@ -11,29 +11,29 @@ import org.example.pojo.dto.MessageAck;
  * @create: 2023-07-20 15:18
  **/
 public class MessageAckUtil {
-    public static MessageAck getMessageAck(MessageBO messageBO) {
-        MessageAck mack = BeanUtil.copyProperties(messageBO, MessageAck.class);
+    public static MessageDTO getMessageAck(MessageBO messageBO) {
+        MessageDTO mack = BeanUtil.copyProperties(messageBO, MessageDTO.class);
         mack.setAck(true);
         mack.setMessageType(0);
         return mack;
     }
 
-    public static MessageAck getBusinessMessageAck(MessageBO messageBO) {
-        MessageAck mack = BeanUtil.copyProperties(messageBO, MessageAck.class);
+    public static MessageDTO getBusinessMessageAck(MessageBO messageBO) {
+        MessageDTO mack = BeanUtil.copyProperties(messageBO, MessageDTO.class);
         mack.setAck(true);
         mack.setMessageType(1);
         return mack;
     }
 
-    public static MessageAck getMessageNak(MessageBO messageBO) {
-        MessageAck mack = BeanUtil.copyProperties(messageBO, MessageAck.class);
+    public static MessageDTO getMessageNak(MessageBO messageBO) {
+        MessageDTO mack = BeanUtil.copyProperties(messageBO, MessageDTO.class);
         mack.setAck(false);
         mack.setMessageType(0);
         return mack;
     }
 
-    public static MessageAck getBusinessMessageNak(MessageBO messageBO) {
-        MessageAck mack = BeanUtil.copyProperties(messageBO, MessageAck.class);
+    public static MessageDTO getBusinessMessageNak(MessageBO messageBO) {
+        MessageDTO mack = BeanUtil.copyProperties(messageBO, MessageDTO.class);
         mack.setAck(false);
         mack.setMessageType(1);
         return mack;

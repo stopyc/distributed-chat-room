@@ -26,7 +26,7 @@ public class JWTUtils {
         JWTUtils.redisUtils = SpringUtil.getBean(RedisUtils.class);
     }
 
-    public static String parseJWT(String token) {
+    public static String parseJWT(String token) throws BusinessException {
         try {
 
             JSONObject claimsJson = JWTUtil.parseToken(token).getPayload().getClaimsJson();

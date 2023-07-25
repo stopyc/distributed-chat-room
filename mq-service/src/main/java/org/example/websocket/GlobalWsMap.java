@@ -1,13 +1,18 @@
 package org.example.websocket;
 
+import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
+import org.example.adapter.MessageBO2MessageDTO;
 import org.example.pojo.bo.MessageBO;
+import org.example.pojo.dto.MessageDTO;
 import org.example.pojo.dto.UserChatDTO;
 import org.example.pojo.exception.BusinessException;
 import org.example.pojo.exception.SystemException;
+import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -25,6 +30,7 @@ public class GlobalWsMap {
 
     private static final Integer MAX_CONNECT = 500;
 
+
     /**
      * 默认负载因子,当连接数达到最大连接数的75%时,开始报警
      */
@@ -41,16 +47,19 @@ public class GlobalWsMap {
         checkMyWebSocket(myWebSocket);
 
         if (ONLINE_COUNT.get() >= MAX_CONNECT) {
-            sendText(myWebSocket, "当前连接数已达到最大连接数, 请稍后再试");
+            MessageDTO messageDTO = MessageBO2MessageDTO.getMessageDTO("当前连接数已达到最大连接数, 请稍后再试", 3);
+            sendText(myWebSocket, messageDTO);
             close(myWebSocket);
             throw new SystemException("当前连接数已达到最大连接数");
         }
         if (ONLINE_COUNT.get() >= MAX_CONNECT * DEFAULT_LOAD_FACTOR) {
             alarm(ONLINE_COUNT.get());
         }
+        log.info("用户id 为: {} 上线了", myWebSocket.getUserId());
         WS_GROUP.put(myWebSocket.getUserId(), myWebSocket);
         ONLINE_COUNT.incrementAndGet();
-        sendText(myWebSocket, "欢迎");
+        MessageDTO messageDTO = MessageBO2MessageDTO.getMessageDTO("欢迎", 3);
+        sendText(myWebSocket, messageDTO);
     }
 
     /**
@@ -59,7 +68,8 @@ public class GlobalWsMap {
     public static void offline(MyWebSocket myWebSocket) {
         checkMyWebSocket(myWebSocket);
         if (ONLINE_COUNT.get() <= 0) {
-            sendText(myWebSocket, "错误的下线请求");
+            MessageDTO messageDTO = MessageBO2MessageDTO.getMessageDTO("错误的下线请求", 3);
+            sendText(myWebSocket, messageDTO);
             close(myWebSocket);
             throw new SystemException("错误的下线请求");
         }
@@ -85,16 +95,16 @@ public class GlobalWsMap {
         //...
     }
 
-    public static void sendText(MyWebSocket myWebSocket, String text) {
-        myWebSocket.getSession().getAsyncRemote().sendText(text);
+    public static void sendText(MyWebSocket myWebSocket, MessageDTO messageDTO) {
+        if (Objects.isNull(myWebSocket)) {
+            return;
+        }
+        myWebSocket.getSession().getAsyncRemote().sendText(JSONObject.toJSONString(messageDTO));
     }
 
-    public static void sendText(Long userId, String text) {
+    public static void sendText(Long userId, MessageDTO messageDTO) {
         MyWebSocket myWebSocket = WS_GROUP.get(userId);
-        if (Objects.isNull(myWebSocket)) {
-            throw new BusinessException("该用户不在线");
-        }
-        myWebSocket.getSession().getAsyncRemote().sendText(text);
+        sendText(myWebSocket, messageDTO);
     }
 
     private static void close(MyWebSocket myWebSocket) {
@@ -127,5 +137,14 @@ public class GlobalWsMap {
             throw new BusinessException("userId不能为空");
         }
         return WS_GROUP.containsKey(userId);
+    }
+
+    public static void sendText(Set<Long> userIdSet, MessageDTO messageDTO) {
+        if (CollectionUtils.isEmpty(userIdSet)) {
+            return;
+        }
+        for (Long userId : userIdSet) {
+            sendText(userId, messageDTO);
+        }
     }
 }

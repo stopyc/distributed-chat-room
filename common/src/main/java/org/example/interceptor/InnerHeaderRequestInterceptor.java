@@ -24,6 +24,7 @@ public class InnerHeaderRequestInterceptor implements RequestInterceptor {
     public void apply(RequestTemplate template) {
 
         ServletRequestAttributes attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
+        template.header(INTERNAL_CALL_REQUEST_HEADER_KEY, INTERNAL_CALL_REQUEST_HEADER_VALUE);
         if (attributes == null) {
             return;
         }

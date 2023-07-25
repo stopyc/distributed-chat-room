@@ -21,7 +21,8 @@ public class RedisListenerConfig {
     RedisMessageListenerContainer container(RedisConnectionFactory factory) {
         RedisMessageListenerContainer container = new RedisMessageListenerContainer();
         container.setConnectionFactory(factory);
-        container.addMessageListener(redisListener, new PatternTopic("__keyevent@*__:expired"));
+        //监听2号库的过期事件
+        container.addMessageListener(redisListener, new PatternTopic("__keyevent@2__:expired"));
         return container;
     }
 }

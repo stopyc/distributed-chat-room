@@ -45,7 +45,7 @@ public class RedisListener implements MessageListener {
         String channel = String.valueOf(serializer.deserialize(message.getChannel()));
         String body = String.valueOf(serializer.deserialize(message.getBody()));
         //key过期监听,在处理业务之前校验下自己业务的key和监听的key以及库号
-        if (channel.contains("__:expired") && body.contains(RedisKey.ACK_MESSAGE_KEY)) {
+        if ("__keyevent@2__:expired".equals(channel) && body.contains(RedisKey.ACK_MESSAGE_KEY)) {
             String[] keySplit = body.split(":");
             if (keySplit.length != 4) {
                 return;

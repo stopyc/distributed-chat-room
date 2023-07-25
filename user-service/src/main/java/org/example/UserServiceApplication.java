@@ -2,7 +2,6 @@ package org.example;
 
 import org.example.config.FeignConfiguration;
 import org.example.feign.ESClient;
-import org.example.feign.UserClient;
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;

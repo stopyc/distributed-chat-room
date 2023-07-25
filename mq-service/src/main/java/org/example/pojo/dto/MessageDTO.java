@@ -1,8 +1,10 @@
-package org.example.pojo.bo;
+package org.example.pojo.dto;
 
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
-
-import java.io.Serializable;
+import lombok.NoArgsConstructor;
+import lombok.experimental.Accessors;
 
 /**
  * @program: chat-room
@@ -11,7 +13,11 @@ import java.io.Serializable;
  * @create: 2023-04-20 12:21
  **/
 @Data
-public class MessageBO implements Serializable {
+@AllArgsConstructor
+@NoArgsConstructor
+@Accessors(chain = true)
+@Builder
+public class MessageDTO {
 
     private Long messageId;
 
@@ -37,6 +43,8 @@ public class MessageBO implements Serializable {
      */
     private Long fromUserId;
 
+    private String fromUserName;
+
     /**
      * 消息内容text
      */
@@ -61,4 +69,8 @@ public class MessageBO implements Serializable {
      * 接收者的id
      */
     private Long toUserId;
+
+    private String toUserName;
+
+    private Boolean ack;
 }
