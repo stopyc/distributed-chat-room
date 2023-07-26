@@ -1,11 +1,12 @@
 package org.example.event_listener;
 
+import cn.hutool.extra.spring.SpringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.example.adapter.MessageBO2MessageDTO;
-import org.example.event.PushBusinessAckEvent;
 import org.example.event.ReceiveWsMessageEvent;
 import org.example.pojo.bo.MessageBO;
 import org.example.pojo.dto.MessageDTO;
+import org.example.utils.PublisherUtil;
 import org.example.websocket.GlobalWsMap;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.context.ApplicationContext;
@@ -35,6 +36,12 @@ public class ReceiveWsMessageListener {
     @Resource
     private ApplicationEventPublisher eventPublisher;
 
+    private static PublisherUtil publisherUtil;
+
+    static {
+        ReceiveWsMessageListener.publisherUtil = SpringUtil.getBean(PublisherUtil.class);
+    }
+
 
     @EventListener(classes = ReceiveWsMessageEvent.class)
     public void handleEvent(ReceiveWsMessageEvent receiveWsMessageEvent) {
@@ -53,7 +60,7 @@ public class ReceiveWsMessageListener {
                 GlobalWsMap.sendText(userIdSet, messageDTO, messageBO.getFromUserId());
             }
             //4. 发送业务ack
-            eventPublisher.publishEvent(new PushBusinessAckEvent(this, messageBO));
+            publisherUtil.pushBusinessAck(this, messageBO);
             receiveWsMessageEvent.getFuture().complete(true);
         } catch (Exception e) {
             e.printStackTrace();

@@ -1,8 +1,9 @@
 package org.example.config;
 
+import cn.hutool.extra.spring.SpringUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.example.event.PushWsMessage2ExchangeEvent;
 import org.example.mq.correlationData.MyMessageCorrelationData;
+import org.example.utils.PublisherUtil;
 import org.springframework.amqp.core.AcknowledgeMode;
 import org.springframework.amqp.core.ReturnedMessage;
 import org.springframework.amqp.rabbit.config.SimpleRabbitListenerContainerFactory;
@@ -34,6 +35,12 @@ public class RabbitMQConfig {
 
     @Resource
     private ApplicationEventPublisher eventPublisher;
+
+    private static PublisherUtil publisherUtil;
+
+    static {
+        RabbitMQConfig.publisherUtil = SpringUtil.getBean(PublisherUtil.class);
+    }
 
     @Bean
     public RabbitListenerContainerFactory<?> rabbitListenerContainerFactory(ConnectionFactory connectionFactory) {
@@ -98,12 +105,11 @@ public class RabbitMQConfig {
             if (ack) {
                 //发送ack
                 myMessageCorrelationData.setSuccess(true);
-                eventPublisher.publishEvent(new PushWsMessage2ExchangeEvent(this, myMessageCorrelationData));
             } else {
                 myMessageCorrelationData.setSuccess(false);
                 myMessageCorrelationData.setThrowableMsg(cause);
-                eventPublisher.publishEvent(new PushWsMessage2ExchangeEvent(this, myMessageCorrelationData));
             }
+            publisherUtil.pushWsMessage2Exchange(this, myMessageCorrelationData);
         });
         return rabbitTemplate;
     }

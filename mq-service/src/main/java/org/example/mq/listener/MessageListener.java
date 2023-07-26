@@ -1,13 +1,14 @@
 package org.example.mq.listener;
 
+import cn.hutool.extra.spring.SpringUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.rabbitmq.client.Channel;
 import lombok.extern.slf4j.Slf4j;
 import org.example.config.WsMessageMqConfig;
-import org.example.event.ReceiveWsMessageEvent;
 import org.example.pojo.bo.MessageBO;
 import org.example.pojo.dto.MessageDTO;
 import org.example.utils.MessageAckUtil;
+import org.example.utils.PublisherUtil;
 import org.example.websocket.GlobalWsMap;
 import org.springframework.amqp.core.ExchangeTypes;
 import org.springframework.amqp.core.Message;
@@ -15,10 +16,8 @@ import org.springframework.amqp.rabbit.annotation.Exchange;
 import org.springframework.amqp.rabbit.annotation.Queue;
 import org.springframework.amqp.rabbit.annotation.QueueBinding;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
-import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Component;
 
-import javax.annotation.Resource;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
 
@@ -35,8 +34,11 @@ import static org.example.config.WsMessageMqConfig.WS_EXCHANGE_NAME;
 @Slf4j
 public class MessageListener {
 
-    @Resource
-    private ApplicationEventPublisher eventPublisher;
+    private static PublisherUtil publisherUtil;
+
+    static {
+        MessageListener.publisherUtil = SpringUtil.getBean(PublisherUtil.class);
+    }
 
     /**
      * 监听ws_fanout_exchange交换机,失败进行进入死信队列进行重试
@@ -85,7 +87,7 @@ public class MessageListener {
                 return true;
             } else {
                 CompletableFuture<Boolean> future = new CompletableFuture<>();
-                eventPublisher.publishEvent(new ReceiveWsMessageEvent(this, future, messageBO));
+                publisherUtil.receiveWsMessage(this, future, messageBO);
                 CompletableFuture.allOf(future);
                 return future.get();
             }
