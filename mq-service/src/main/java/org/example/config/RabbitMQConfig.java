@@ -1,6 +1,5 @@
 package org.example.config;
 
-import cn.hutool.extra.spring.SpringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.example.mq.correlationData.MyMessageCorrelationData;
 import org.example.utils.PublisherUtil;
@@ -14,6 +13,7 @@ import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 
@@ -25,6 +25,7 @@ import javax.annotation.Resource;
  **/
 @Configuration
 @Slf4j
+@Component
 public class RabbitMQConfig {
 
 
@@ -36,11 +37,9 @@ public class RabbitMQConfig {
     @Resource
     private ApplicationEventPublisher eventPublisher;
 
-    private static PublisherUtil publisherUtil;
+    @Resource
+    private PublisherUtil publisherUtil;
 
-    static {
-        RabbitMQConfig.publisherUtil = SpringUtil.getBean(PublisherUtil.class);
-    }
 
     @Bean
     public RabbitListenerContainerFactory<?> rabbitListenerContainerFactory(ConnectionFactory connectionFactory) {
