@@ -1,15 +1,15 @@
 package org.example.event_listener;
 
-import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.example.adapter.MessageBO2MessageDTO;
-import org.example.config.WsMessageMqConfig;
+import org.example.event.PushBusinessAckEvent;
 import org.example.event.ReceiveWsMessageEvent;
 import org.example.pojo.bo.MessageBO;
 import org.example.pojo.dto.MessageDTO;
 import org.example.websocket.GlobalWsMap;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 
@@ -32,6 +32,9 @@ public class ReceiveWsMessageListener {
     @Resource
     private ApplicationContext applicationContext;
 
+    @Resource
+    private ApplicationEventPublisher eventPublisher;
+
 
     @EventListener(classes = ReceiveWsMessageEvent.class)
     public void handleEvent(ReceiveWsMessageEvent receiveWsMessageEvent) {
@@ -49,11 +52,8 @@ public class ReceiveWsMessageListener {
                 Set<Long> userIdSet = MessageBO2MessageDTO.getUserIdSetByChatRoomId(messageDTO.getChatRoomId());
                 GlobalWsMap.sendText(userIdSet, messageDTO, messageBO.getFromUserId());
             }
-            messageBO.setMessageType(1);
-            //谁处理谁back
-            if (GlobalWsMap.isOnline(messageBO.getFromUserId())) {
-                rabbitTemplate.convertAndSend(WsMessageMqConfig.WS_EXCHANGE_NAME, "message.ws", JSONObject.toJSONString(messageBO));
-            }
+            //4. 发送业务ack
+            eventPublisher.publishEvent(new PushBusinessAckEvent(this, messageBO));
             receiveWsMessageEvent.getFuture().complete(true);
         } catch (Exception e) {
             e.printStackTrace();
