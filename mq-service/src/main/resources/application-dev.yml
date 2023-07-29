@@ -1,6 +1,11 @@
 # 运行端口
 server:
   port: 8082
+  tomcat:
+    max-connections: 1000
+    accept-count: 500
+    threads:
+      max: 300
 
 spring:
   # cloud

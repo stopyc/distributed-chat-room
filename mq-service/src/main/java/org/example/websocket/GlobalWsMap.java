@@ -44,10 +44,7 @@ public class GlobalWsMap {
      * 上线
      */
     public static void online(MyWebSocket myWebSocket) {
-        //需要对同一个用户的上线下线请求进行同步处理，解决ws连接快速失败问题
-        synchronized (myWebSocket.getMonitor()) {
-            onlineInterval(myWebSocket);
-        }
+        onlineInterval(myWebSocket);
     }
 
     private static void onlineInterval(MyWebSocket myWebSocket) {
@@ -67,16 +64,14 @@ public class GlobalWsMap {
         ONLINE_COUNT.incrementAndGet();
         MessageDTO messageDTO = MessageBO2MessageDTO.getMessageDTO("欢迎", 3);
         sendText(myWebSocket, messageDTO);
-        log.info("当前在线人数 为: {}", WS_GROUP.size());
+        log.info("当前在线人数 为: {}", ONLINE_COUNT.get());
     }
 
     /**
      * 下线
      */
     public static void offline(MyWebSocket myWebSocket) {
-        synchronized (myWebSocket.getMonitor()) {
-            offlineInterval(myWebSocket);
-        }
+        offlineInterval(myWebSocket);
     }
 
     private static void offlineInterval(MyWebSocket myWebSocket) {
@@ -89,13 +84,11 @@ public class GlobalWsMap {
                 log.warn("错误的下线请求");
             }
         } finally {
-            WS_GROUP.remove(myWebSocket.getUserId());
-            ONLINE_COUNT.decrementAndGet();
-            log.info("用户id 为: {} 下线了", myWebSocket.getUserId());
-            log.info("当前在线人数 为: {}", WS_GROUP.size());
-            WS_GROUP.forEach((k, v) -> {
-                log.info("当前在线用户: {} v :{}", k, v);
-            });
+            MyWebSocket remove = WS_GROUP.remove(myWebSocket.getUserId());
+            if (remove != null) {
+                log.info("用户id 为: {} 下线了", myWebSocket.getUserId());
+                log.info("当前在线人数 为: {}", ONLINE_COUNT.decrementAndGet());
+            }
         }
     }
 

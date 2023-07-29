@@ -4,6 +4,7 @@ import cn.hutool.extra.spring.SpringUtil;
 import com.alibaba.fastjson.JSONObject;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.example.pojo.bo.UserBO;
@@ -32,6 +33,7 @@ import java.io.IOException;
 @EqualsAndHashCode(callSuper = false)
 @Getter
 @ToString
+@Setter
 public class MyWebSocket {
 
     private static PublisherUtil publisherUtil;
@@ -52,6 +54,8 @@ public class MyWebSocket {
 
     private UserBO userBO;
 
+    private String token;
+
     private final Object monitor = new Object();
 
     /**
@@ -61,18 +65,21 @@ public class MyWebSocket {
     @OnOpen
     public void onOpen(Session session,
                        @PathParam("token") String token) {
-        checkToken(token, session);
-        UserBO userBO = null;
-        try {
-            userBO = JWTUtils.parseJWT2UserBo(token);
-        } catch (BusinessException e) {
-            throwError(session, e.getMessage());
-            throw new BusinessException(e.getMessage());
+        //需要对同一个用户的上线下线请求进行同步处理，解决ws连接快速失败问题
+        synchronized (monitor) {
+            checkToken(token, session);
+            UserBO userBO = null;
+            try {
+                userBO = JWTUtils.parseJWT2UserBo(token);
+            } catch (BusinessException e) {
+                throwError(session, e.getMessage());
+                throw new BusinessException(e.getMessage());
+            }
+            this.userId = userBO.getUserId();
+            this.session = session;
+            this.userBO = userBO;
+            publisherUtil.userOnline(this, this);
         }
-        this.userId = userBO.getUserId();
-        this.session = session;
-        this.userBO = userBO;
-        publisherUtil.userOnline(this, this);
     }
 
     private void checkToken(String token, Session session) {
@@ -88,7 +95,9 @@ public class MyWebSocket {
     @OnClose
     public void onClose(Session session,
                         @PathParam("token") String token) throws IOException {
-        publisherUtil.userOffline(this, this);
+        synchronized (monitor) {
+            publisherUtil.userOffline(this, this);
+        }
     }
 
     @OnError
@@ -96,7 +105,9 @@ public class MyWebSocket {
                         Throwable throwable,
                         @PathParam("token") String token) throws IOException {
         log.error("ws连接内部报错, 错误为 {}", throwable.getMessage());
-        publisherUtil.userOffline(this, this);
+        synchronized (monitor) {
+            publisherUtil.userOffline(this, this);
+        }
     }
 
     @OnMessage

@@ -5,7 +5,6 @@ import org.example.event.UserOnlineEvent;
 import org.example.websocket.GlobalWsMap;
 import org.example.websocket.MyWebSocket;
 import org.springframework.context.event.EventListener;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 /**
@@ -18,7 +17,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class UserOnlineListener {
 
-    @Async
+    //@Async
     @EventListener(classes = UserOnlineEvent.class)
     public void handleEvent(UserOnlineEvent userOnlineEvent) {
         MyWebSocket myWebSocket = userOnlineEvent.getMyWebSocket();
