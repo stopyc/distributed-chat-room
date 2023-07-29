@@ -44,6 +44,13 @@ public class GlobalWsMap {
      * 上线
      */
     public static void online(MyWebSocket myWebSocket) {
+        //需要对同一个用户的上线下线请求进行同步处理，解决ws连接快速失败问题
+        synchronized (myWebSocket.getMonitor()) {
+            onlineInterval(myWebSocket);
+        }
+    }
+
+    private static void onlineInterval(MyWebSocket myWebSocket) {
         checkMyWebSocket(myWebSocket);
 
         if (ONLINE_COUNT.get() >= MAX_CONNECT) {
@@ -60,21 +67,36 @@ public class GlobalWsMap {
         ONLINE_COUNT.incrementAndGet();
         MessageDTO messageDTO = MessageBO2MessageDTO.getMessageDTO("欢迎", 3);
         sendText(myWebSocket, messageDTO);
+        log.info("当前在线人数 为: {}", WS_GROUP.size());
     }
 
     /**
      * 下线
      */
     public static void offline(MyWebSocket myWebSocket) {
-        checkMyWebSocket(myWebSocket);
-        if (ONLINE_COUNT.get() <= 0) {
-            MessageDTO messageDTO = MessageBO2MessageDTO.getMessageDTO("错误的下线请求", 3);
-            sendText(myWebSocket, messageDTO);
-            close(myWebSocket);
-            throw new SystemException("错误的下线请求");
+        synchronized (myWebSocket.getMonitor()) {
+            offlineInterval(myWebSocket);
         }
-        WS_GROUP.remove(myWebSocket.getUserId());
-        ONLINE_COUNT.decrementAndGet();
+    }
+
+    private static void offlineInterval(MyWebSocket myWebSocket) {
+        try {
+            checkMyWebSocket(myWebSocket);
+            if (ONLINE_COUNT.get() <= 0) {
+                //MessageDTO messageDTO = MessageBO2MessageDTO.getMessageDTO("错误的下线请求", 3);
+                //sendText(myWebSocket, messageDTO);
+                close(myWebSocket);
+                log.warn("错误的下线请求");
+            }
+        } finally {
+            WS_GROUP.remove(myWebSocket.getUserId());
+            ONLINE_COUNT.decrementAndGet();
+            log.info("用户id 为: {} 下线了", myWebSocket.getUserId());
+            log.info("当前在线人数 为: {}", WS_GROUP.size());
+            WS_GROUP.forEach((k, v) -> {
+                log.info("当前在线用户: {} v :{}", k, v);
+            });
+        }
     }
 
     /**
@@ -99,7 +121,9 @@ public class GlobalWsMap {
         if (Objects.isNull(myWebSocket)) {
             return;
         }
-        myWebSocket.getSession().getAsyncRemote().sendText(JSONObject.toJSONString(messageDTO));
+        if (myWebSocket.getSession().isOpen()) {
+            myWebSocket.getSession().getAsyncRemote().sendText(JSONObject.toJSONString(messageDTO));
+        }
     }
 
     public static void sendText(Long userId, MessageDTO messageDTO) {

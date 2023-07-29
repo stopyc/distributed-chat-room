@@ -6,6 +6,7 @@ import org.example.feign.UserClient;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * @program: monitor
@@ -14,6 +15,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
  * @create: 2023-04-06 13:20
  **/
 @SpringBootApplication
+@EnableScheduling
 @EnableFeignClients(clients = {IdClient.class, UserClient.class}, defaultConfiguration = FeignConfiguration.class)
 public class MQApplication {
     public static void main(String[] args) {

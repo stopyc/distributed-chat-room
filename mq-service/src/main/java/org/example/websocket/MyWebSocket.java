@@ -4,6 +4,7 @@ import cn.hutool.extra.spring.SpringUtil;
 import com.alibaba.fastjson.JSONObject;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.example.pojo.bo.UserBO;
 import org.example.pojo.exception.BusinessException;
@@ -30,6 +31,7 @@ import java.io.IOException;
 @Component
 @EqualsAndHashCode(callSuper = false)
 @Getter
+@ToString
 public class MyWebSocket {
 
     private static PublisherUtil publisherUtil;
@@ -48,8 +50,9 @@ public class MyWebSocket {
      */
     private Long userId;
 
-
     private UserBO userBO;
+
+    private final Object monitor = new Object();
 
     /**
      * 鉴权, 统一token认证,并对字段进行赋值
@@ -93,6 +96,7 @@ public class MyWebSocket {
                         Throwable throwable,
                         @PathParam("token") String token) throws IOException {
         log.error("ws连接内部报错, 错误为 {}", throwable.getMessage());
+        publisherUtil.userOffline(this, this);
     }
 
     @OnMessage
