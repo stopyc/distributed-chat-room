@@ -4,10 +4,10 @@ import cn.hutool.extra.spring.SpringUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.rabbitmq.client.Channel;
 import lombok.extern.slf4j.Slf4j;
+import org.example.adapter.MessageDTOAdapter;
 import org.example.config.WsMessageMqConfig;
 import org.example.pojo.bo.MessageBO;
 import org.example.pojo.dto.MessageDTO;
-import org.example.utils.MessageAckUtil;
 import org.example.utils.PublisherUtil;
 import org.example.websocket.GlobalWsMap;
 import org.springframework.amqp.core.ExchangeTypes;
@@ -82,7 +82,7 @@ public class MessageListener {
     private boolean doBusiness(MessageBO messageBO) {
         try {
             if (messageBO.getMessageType() == 1) {
-                MessageDTO businessMessageAck = MessageAckUtil.getBusinessMessageAck(messageBO);
+                MessageDTO businessMessageAck = MessageDTOAdapter.getBusinessMessageAck(messageBO);
                 GlobalWsMap.sendText(messageBO.getFromUserId(), businessMessageAck);
                 return true;
             } else {

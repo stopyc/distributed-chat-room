@@ -8,6 +8,7 @@ import org.example.pojo.bo.UserBO;
 import org.example.pojo.dto.MessageDTO;
 import org.example.pojo.dto.ResultDTO;
 import org.example.pojo.vo.ResultVO;
+import org.example.pojo.vo.WsMessageVO;
 import org.springframework.stereotype.Component;
 
 import javax.validation.constraints.NotNull;
@@ -15,20 +16,18 @@ import java.util.*;
 
 /**
  * @program: chat-room
- * @description: bo转dto
+ * @description: obj转dto
  * @author: stop.yc
  * @create: 2023-07-24 11:05
  **/
 @Component
-public class MessageBO2MessageDTO {
-
+public class MessageDTOAdapter {
 
     private static UserClient userClient;
 
     static {
-        MessageBO2MessageDTO.userClient = SpringUtil.getBean(UserClient.class);
+        MessageDTOAdapter.userClient = SpringUtil.getBean(UserClient.class);
     }
-
 
     public static MessageDTO getMessageDTO(MessageBO messageBO, @NotNull Integer messageType) {
         ResultDTO fromUserResult = userClient.getById(messageBO.getFromUserId());
@@ -67,5 +66,50 @@ public class MessageBO2MessageDTO {
         dto.setMessage(msg);
         dto.setMessageType(messageType);
         return dto;
+    }
+
+    public static MessageDTO getMessageAck(MessageBO messageBO) {
+        MessageDTO mack = BeanUtil.copyProperties(messageBO, MessageDTO.class);
+        mack.setAck(true);
+        mack.setMessageType(0);
+        mack.setMessage(null);
+        mack.setByteArray(null);
+        return mack;
+    }
+
+    public static MessageDTO getBusinessMessageAck(MessageBO messageBO) {
+        MessageDTO mack = BeanUtil.copyProperties(messageBO, MessageDTO.class);
+        mack.setAck(true);
+        mack.setMessageType(1);
+        mack.setMessage(null);
+        mack.setByteArray(null);
+        return mack;
+    }
+
+    public static MessageDTO getMessageNak(MessageBO messageBO) {
+        MessageDTO mack = BeanUtil.copyProperties(messageBO, MessageDTO.class);
+        mack.setAck(false);
+        mack.setMessageType(0);
+        mack.setMessage(null);
+        mack.setByteArray(null);
+        return mack;
+    }
+
+    public static MessageDTO getBusinessMessageNak(MessageBO messageBO) {
+        MessageDTO mack = BeanUtil.copyProperties(messageBO, MessageDTO.class);
+        mack.setAck(false);
+        mack.setMessageType(1);
+        mack.setMessage(null);
+        mack.setByteArray(null);
+        return mack;
+    }
+
+    public static MessageDTO getBeatPong(WsMessageVO wsMessageVO) {
+        MessageDTO pong = BeanUtil.copyProperties(wsMessageVO, MessageDTO.class);
+        pong.setAck(true);
+        pong.setMessageType(4);
+        pong.setMessage("pong");
+        pong.setByteArray(null);
+        return pong;
     }
 }

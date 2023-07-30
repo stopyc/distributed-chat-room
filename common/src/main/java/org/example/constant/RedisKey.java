@@ -19,4 +19,8 @@ public class RedisKey {
 
     public static final String ACK_MESSAGE_KEY = "ack:message:";
 
+    public static final String SINGLE_CHAT = "singlechat:";
+
+    public static final String GROUP_CHAT = "groupchat:";
+
 }

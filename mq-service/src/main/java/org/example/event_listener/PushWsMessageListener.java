@@ -3,6 +3,7 @@ package org.example.event_listener;
 import cn.hutool.core.bean.BeanUtil;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
+import org.example.adapter.MessageDTOAdapter;
 import org.example.config.WsMessageMqConfig;
 import org.example.constant.RedisConstant;
 import org.example.constant.RedisKey;
@@ -14,7 +15,6 @@ import org.example.pojo.dto.MessageDTO;
 import org.example.pojo.exception.SystemException;
 import org.example.pojo.vo.WsMessageVO;
 import org.example.util.RedisNewUtil;
-import org.example.utils.MessageAckUtil;
 import org.example.websocket.GlobalWsMap;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.context.ApplicationContext;
@@ -51,8 +51,15 @@ public class PushWsMessageListener {
     @Async
     @EventListener(classes = PushWsMessageEvent.class)
     public void handleEvent(PushWsMessageEvent pushWsMessageEvent) {
+
         //服务器收到消息,先判断这个消息是否之前已经收到了
         WsMessageVO wsMessageVO = pushWsMessageEvent.getWsMessageVO();
+        if (isBeat(wsMessageVO)) {
+            //心跳消息直接返回ack
+            MessageDTO pong = MessageDTOAdapter.getBeatPong(wsMessageVO);
+            GlobalWsMap.sendText(wsMessageVO.getFromUserId(), pong);
+            return;
+        }
 
         Set<MessageBO> durableMsg = RedisNewUtil.zget(RedisKey.MESSAGE_KEY, wsMessageVO.getFromUserId(), wsMessageVO.getClientMessageId(), MessageBO.class);
         if (!CollectionUtils.isEmpty(durableMsg)) {
@@ -79,7 +86,7 @@ public class PushWsMessageListener {
                 }
             }
             //直接返回ack
-            MessageDTO messageAck = MessageAckUtil.getMessageAck(redisMbo);
+            MessageDTO messageAck = MessageDTOAdapter.getMessageAck(redisMbo);
             GlobalWsMap.sendText(redisMbo.getFromUserId(), messageAck);
             return;
         }
@@ -96,11 +103,11 @@ public class PushWsMessageListener {
                     messageBO,
                     RedisConstant.ACK_EXPIRATION_TIME,
                     TimeUnit.SECONDS);
-            MessageDTO messageAck = MessageAckUtil.getMessageAck(messageBO);
+            MessageDTO messageAck = MessageDTOAdapter.getMessageAck(messageBO);
             GlobalWsMap.sendText(messageBO.getFromUserId(), messageAck);
             me().push2Mq(messageBO);
         } catch (Exception e) {
-            MessageDTO messageAck = MessageAckUtil.getMessageNak(messageBO);
+            MessageDTO messageAck = MessageDTOAdapter.getMessageNak(messageBO);
             GlobalWsMap.sendText(messageBO.getFromUserId(), messageAck);
             log.error("消息保存到redis失败!发送消息nak!");
         }
@@ -112,5 +119,9 @@ public class PushWsMessageListener {
         MyMessageCorrelationData myMessageCorrelationData = BeanUtil.copyProperties(messageBO, MyMessageCorrelationData.class);
         //发送消息, ack和nak的逻辑在配置类中.
         rabbitTemplate.convertAndSend(WsMessageMqConfig.WS_EXCHANGE_NAME, "message.ws", JSONObject.toJSONString(messageBO), myMessageCorrelationData);
+    }
+
+    private boolean isBeat(WsMessageVO wsMessageVO) {
+        return wsMessageVO.getMessageType() == 4;
     }
 }

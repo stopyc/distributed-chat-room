@@ -2,7 +2,7 @@ package org.example.websocket;
 
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
-import org.example.adapter.MessageBO2MessageDTO;
+import org.example.adapter.MessageDTOAdapter;
 import org.example.pojo.bo.MessageBO;
 import org.example.pojo.dto.MessageDTO;
 import org.example.pojo.dto.UserChatDTO;
@@ -49,7 +49,7 @@ public class GlobalWsMap {
         checkMyWebSocket(myWebSocket);
 
         if (WS_GROUP.size() >= MAX_CONNECT) {
-            MessageDTO messageDTO = MessageBO2MessageDTO.getMessageDTO("当前连接数已达到最大连接数, 请稍后再试", 3);
+            MessageDTO messageDTO = MessageDTOAdapter.getMessageDTO("当前连接数已达到最大连接数, 请稍后再试", 3);
             sendText(myWebSocket, messageDTO);
             close(myWebSocket);
             throw new SystemException("当前连接数已达到最大连接数");
@@ -59,7 +59,7 @@ public class GlobalWsMap {
         }
         log.info("用户id 为: {} 上线了", myWebSocket.getUserId());
         WS_GROUP.put(myWebSocket.getUserId(), myWebSocket);
-        MessageDTO messageDTO = MessageBO2MessageDTO.getMessageDTO("欢迎", 3);
+        MessageDTO messageDTO = MessageDTOAdapter.getMessageDTO("欢迎", 3);
         sendText(myWebSocket, messageDTO);
         log.info("map当前在线人数 为: {}", WS_GROUP.size());
     }
