@@ -5,7 +5,6 @@ import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.example.adapter.MessageDTOAdapter;
 import org.example.config.WsMessageMqConfig;
-import org.example.constant.RedisConstant;
 import org.example.constant.RedisKey;
 import org.example.event.PushWsMessageEvent;
 import org.example.factory.MessageFactory;
@@ -79,7 +78,7 @@ public class PushWsMessageListener {
                     RedisNewUtil.put(RedisKey.ACK_MESSAGE_KEY,
                             messageBO.getFromUserId() + ":" + messageBO.getClientMessageId(),
                             messageBO,
-                            RedisConstant.ACK_EXPIRATION_TIME,
+                            RedisKey.ACK_EXPIRATION_TIME,
                             TimeUnit.SECONDS);
                     redisMbo = messageBO;
                     me().push2Mq(messageBO);
@@ -101,7 +100,7 @@ public class PushWsMessageListener {
             RedisNewUtil.put(RedisKey.ACK_MESSAGE_KEY,
                     messageBO.getFromUserId() + ":" + messageBO.getClientMessageId(),
                     messageBO,
-                    RedisConstant.ACK_EXPIRATION_TIME,
+                    RedisKey.ACK_EXPIRATION_TIME,
                     TimeUnit.SECONDS);
             MessageDTO messageAck = MessageDTOAdapter.getMessageAck(messageBO);
             GlobalWsMap.sendText(messageBO.getFromUserId(), messageAck);

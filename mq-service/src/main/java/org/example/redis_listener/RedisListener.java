@@ -4,7 +4,6 @@ import cn.hutool.core.bean.BeanUtil;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.example.config.WsMessageMqConfig;
-import org.example.constant.RedisConstant;
 import org.example.constant.RedisKey;
 import org.example.mq.correlationData.MyMessageCorrelationData;
 import org.example.pojo.bo.MessageBO;
@@ -68,7 +67,7 @@ public class RedisListener implements MessageListener {
                     RedisNewUtil.put(RedisKey.ACK_MESSAGE_KEY,
                             messageBO.getFromUserId() + ":" + messageBO.getClientMessageId(),
                             messageBO,
-                            RedisConstant.ACK_EXPIRATION_TIME,
+                            RedisKey.ACK_EXPIRATION_TIME,
                             TimeUnit.SECONDS);
                     push2Mq(messageBO);
                 }

@@ -3,7 +3,6 @@ package org.example.event_listener;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.example.config.WsMessageMqConfig;
-import org.example.constant.RedisConstant;
 import org.example.constant.RedisKey;
 import org.example.event.PushWsMessage2ExchangeEvent;
 import org.example.mq.correlationData.MyMessageCorrelationData;
@@ -53,7 +52,7 @@ public class PushWsMessage2ExchangeListener {
                 RedisNewUtil.put(RedisKey.ACK_MESSAGE_KEY,
                         messageBo.getFromUserId() + ":" + messageBo.getClientMessageId(),
                         messageBo,
-                        RedisConstant.ACK_EXPIRATION_TIME,
+                        RedisKey.ACK_EXPIRATION_TIME,
                         TimeUnit.SECONDS);
                 push2Mq(correlationData, messageBo);
             }
