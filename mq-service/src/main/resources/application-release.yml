@@ -1,6 +1,6 @@
 # 运行端口
 server:
-  port: 30011
+  port: 34444
   tomcat:
     max-connections: 1000
     accept-count: 500
@@ -58,9 +58,9 @@ spring:
   task:
     execution:
       pool:
-        core-size: 10
-        max-size: 20
-        queue-capacity: 30
+        core-size: 100
+        max-size: 300
+        queue-capacity: 100
 
 # mp配置
 mybatisplus:

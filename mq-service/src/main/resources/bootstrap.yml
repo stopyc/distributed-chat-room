@@ -1,8 +1,5 @@
 spring:
   cloud:
-    inetutils:
-      preferred-networks:
-        - 192.168.31
     nacos:
       server-addr: ${NACOS_HOST} # nacos地址
 #      server-addr: localhost # nacos地址
@@ -13,3 +10,4 @@ spring:
         cluster-name: GZ
 #        ip: ${HOST}
         ephemeral: true
+#        ip: 39.98.41.126

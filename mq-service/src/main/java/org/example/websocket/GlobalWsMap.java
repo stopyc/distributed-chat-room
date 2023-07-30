@@ -15,7 +15,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
-import java.util.concurrent.atomic.AtomicInteger;
 
 
 /**
@@ -26,9 +25,8 @@ public class GlobalWsMap {
 
     public static final ConcurrentHashMap<Long, MyWebSocket> WS_GROUP;
 
-    private static final AtomicInteger ONLINE_COUNT = new AtomicInteger(0);
 
-    private static final Integer MAX_CONNECT = 500;
+    private static final Integer MAX_CONNECT = 1000;
 
 
     /**
@@ -50,21 +48,20 @@ public class GlobalWsMap {
     private static void onlineInterval(MyWebSocket myWebSocket) {
         checkMyWebSocket(myWebSocket);
 
-        if (ONLINE_COUNT.get() >= MAX_CONNECT) {
+        if (WS_GROUP.size() >= MAX_CONNECT) {
             MessageDTO messageDTO = MessageBO2MessageDTO.getMessageDTO("当前连接数已达到最大连接数, 请稍后再试", 3);
             sendText(myWebSocket, messageDTO);
             close(myWebSocket);
             throw new SystemException("当前连接数已达到最大连接数");
         }
-        if (ONLINE_COUNT.get() >= MAX_CONNECT * DEFAULT_LOAD_FACTOR) {
-            alarm(ONLINE_COUNT.get());
+        if (WS_GROUP.size() >= MAX_CONNECT * DEFAULT_LOAD_FACTOR) {
+            alarm(WS_GROUP.size());
         }
         log.info("用户id 为: {} 上线了", myWebSocket.getUserId());
         WS_GROUP.put(myWebSocket.getUserId(), myWebSocket);
-        ONLINE_COUNT.incrementAndGet();
         MessageDTO messageDTO = MessageBO2MessageDTO.getMessageDTO("欢迎", 3);
         sendText(myWebSocket, messageDTO);
-        log.info("当前在线人数 为: {}", ONLINE_COUNT.get());
+        log.info("map当前在线人数 为: {}", WS_GROUP.size());
     }
 
     /**
@@ -77,7 +74,7 @@ public class GlobalWsMap {
     private static void offlineInterval(MyWebSocket myWebSocket) {
         try {
             checkMyWebSocket(myWebSocket);
-            if (ONLINE_COUNT.get() <= 0) {
+            if (WS_GROUP.size() <= 0) {
                 //MessageDTO messageDTO = MessageBO2MessageDTO.getMessageDTO("错误的下线请求", 3);
                 //sendText(myWebSocket, messageDTO);
                 close(myWebSocket);
@@ -87,7 +84,7 @@ public class GlobalWsMap {
             MyWebSocket remove = WS_GROUP.remove(myWebSocket.getUserId());
             if (remove != null) {
                 log.info("用户id 为: {} 下线了", myWebSocket.getUserId());
-                log.info("当前在线人数 为: {}", ONLINE_COUNT.decrementAndGet());
+                log.info("map当前在线人数 为: {}", WS_GROUP.size());
             }
         }
     }

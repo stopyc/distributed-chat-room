@@ -61,9 +61,9 @@ spring:
   task:
     execution:
       pool:
-        core-size: 10
-        max-size: 20
-        queue-capacity: 30
+        core-size: 100
+        max-size: 3000
+        queue-capacity: 100
 
 # mp配置
 mybatisplus:
