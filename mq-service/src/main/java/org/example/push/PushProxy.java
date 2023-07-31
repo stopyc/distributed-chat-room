@@ -3,12 +3,14 @@ package org.example.push;
 import lombok.extern.slf4j.Slf4j;
 import org.example.adapter.MessageDTOAdapter;
 import org.example.constant.RedisKey;
+import org.example.dao.UserDao;
 import org.example.pojo.bo.MessageBO;
 import org.example.pojo.dto.MessageDTO;
 import org.example.util.RedisNewUtil;
 import org.example.websocket.GlobalWsMap;
 import org.springframework.stereotype.Component;
 
+import javax.annotation.Resource;
 import java.util.Set;
 
 /**
@@ -20,6 +22,9 @@ import java.util.Set;
 @Component
 @Slf4j
 public class PushProxy implements PushWorker {
+
+    @Resource
+    private UserDao userDao;
 
     @Override
     public void push2User(MessageBO messageBO) {
@@ -40,7 +45,7 @@ public class PushProxy implements PushWorker {
     public void push2Group(MessageBO messageBO) {
         MessageDTO messageDTO = MessageDTOAdapter.getMessageDTO(messageBO, 6);
         RedisNewUtil.zput(RedisKey.GROUP_CHAT, messageDTO.getChatRoomId(), messageDTO, messageDTO.getMessageId());
-        Set<Long> userIdSet = MessageDTOAdapter.getUserIdSetByChatRoomId(messageDTO.getChatRoomId());
+        Set<Long> userIdSet = userDao.getUserIdSetByChatRoomId(messageDTO.getChatRoomId());
         GlobalWsMap.sendText(userIdSet, messageDTO, messageBO.getFromUserId());
     }
 }

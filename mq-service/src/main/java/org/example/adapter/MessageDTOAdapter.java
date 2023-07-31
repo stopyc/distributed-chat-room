@@ -2,17 +2,15 @@ package org.example.adapter;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.extra.spring.SpringUtil;
-import org.example.feign.UserClient;
+import org.example.dao.UserDao;
 import org.example.pojo.bo.MessageBO;
 import org.example.pojo.bo.UserBO;
 import org.example.pojo.dto.MessageDTO;
-import org.example.pojo.dto.ResultDTO;
-import org.example.pojo.vo.ResultVO;
 import org.example.pojo.vo.WsMessageVO;
 import org.springframework.stereotype.Component;
 
 import javax.validation.constraints.NotNull;
-import java.util.*;
+import java.util.Optional;
 
 /**
  * @program: chat-room
@@ -23,42 +21,20 @@ import java.util.*;
 @Component
 public class MessageDTOAdapter {
 
-    private static UserClient userClient;
+    private static UserDao userDao;
 
     static {
-        MessageDTOAdapter.userClient = SpringUtil.getBean(UserClient.class);
+        MessageDTOAdapter.userDao = SpringUtil.getBean(UserDao.class);
     }
 
     public static MessageDTO getMessageDTO(MessageBO messageBO, @NotNull Integer messageType) {
-        ResultDTO fromUserResult = userClient.getById(messageBO.getFromUserId());
-        ResultDTO toUserResult = userClient.getById(messageBO.getToUserId());
         MessageDTO dto = BeanUtil.copyProperties(messageBO, MessageDTO.class);
-        if (fromUserResult.getCode() == 200) {
-            UserBO userBO = BeanUtil.mapToBean((LinkedHashMap) fromUserResult.getData(), UserBO.class, true);
-            dto.setFromUserName(userBO.getUsername());
-        }
-
-        if (toUserResult.getCode() == 200) {
-            UserBO userBO = BeanUtil.mapToBean((LinkedHashMap) toUserResult.getData(), UserBO.class, true);
-            dto.setToUserName(userBO.getUsername());
-        }
-
+        UserBO fromUserBo = userDao.getUserBoByUserId(messageBO.getFromUserId());
+        dto.setFromUserName(Optional.ofNullable(fromUserBo).map(UserBO::getUsername).orElse("未知用户"));
+        UserBO toUserBo = userDao.getUserBoByUserId(messageBO.getToUserId());
+        dto.setToUserName(Optional.of(toUserBo).map(UserBO::getUsername).orElse("未知用户"));
         dto.setMessageType(messageType);
         return dto;
-    }
-
-    public static Set<Long> getUserIdSetByChatRoomId(Long chatRoomId) {
-        ResultVO userSetByChatRoomId = userClient.getUserSetByChatRoomId(chatRoomId);
-        HashSet<Long> hashset = new HashSet<>();
-        if (userSetByChatRoomId.getCode() == 200) {
-            List data = (ArrayList) userSetByChatRoomId.getData();
-            for (Object datum : data) {
-                hashset.add((long) ((int) datum));
-            }
-            return hashset;
-        }
-
-        return Collections.emptySet();
     }
 
     public static MessageDTO getMessageDTO(String msg, @NotNull Integer messageType) {

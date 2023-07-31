@@ -31,5 +31,5 @@ public interface UserClient {
     ResultDTO getById(@RequestParam("userId") Long userId);
 
     @GetMapping("/chatRoom/inner/{chatRoomId}")
-    ResultVO getUserSetByChatRoomId(@PathVariable("chatRoomId") Long chatRoomId);
+    ResultDTO getUserSetByChatRoomId(@PathVariable("chatRoomId") Long chatRoomId);
 }

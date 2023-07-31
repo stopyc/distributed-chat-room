@@ -1,7 +1,7 @@
 package org.example.controller;
 
+import org.example.pojo.dto.ResultDTO;
 import org.example.pojo.po.ChatRoom;
-import org.example.pojo.vo.ResultVO;
 import org.example.service.IChatRoomService;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -27,7 +27,7 @@ public class ChatRoomController {
 
     @GetMapping("/inner/{chatRoomId}")
     //@PreAuthorize("@ss.hasPermi('system:admin:query')")
-    public ResultVO getUserSetByChatRoomId(@PathVariable("chatRoomId") Long chatRoomId) {
+    public ResultDTO getUserSetByChatRoomId(@PathVariable("chatRoomId") Long chatRoomId) {
         List<Long> list = chatRoomService.lambdaQuery()
                 .eq(ChatRoom::getChatRoomId, chatRoomId)
                 .list()
@@ -35,6 +35,6 @@ public class ChatRoomController {
                 .map(ChatRoom::getUserId)
                 .collect(Collectors.toList());
 
-        return ResultVO.ok(new HashSet<>(list));
+        return ResultDTO.ok(new HashSet<>(list));
     }
 }
