@@ -55,6 +55,7 @@ spring:
     gateway:
       default-filters:
         - AddRequestHeader=origin,gateway
+#        - DedupeResponseHeader=Vary Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_FIRST
       routes: # 网关路由配置
         - id: user-service # 路由id，自定义，只要唯一即可
           uri: lb://user-service # 路由的目标地址 lb就是负载均衡，后面跟服务名称
@@ -95,8 +96,8 @@ spring:
         add-to-simple-url-handler-mapping: true # 解决options请求被拦截问题
         corsConfigurations:
           '[/**]':
-            #            allowedOrigins: # 允许哪些网站的跨域请求
-            #              - "http://localhost:8090"
+            # 允许哪些网站的跨域请求
+            allowedOrigins: "*"
             allowedMethods: # 允许的跨域ajax的请求方式
               - "GET"
               - "POST"
@@ -106,6 +107,8 @@ spring:
             allowedHeaders: "*" # 允许在请求中携带的头信息
             allowCredentials: true # 是否允许携带cookie
             maxAge: 360000 # 这次跨域检测的有效期
+
+
 
 
 setting:
