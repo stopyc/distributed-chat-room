@@ -3,6 +3,7 @@ package org.example.event_listener;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.example.config.WsMessageMqConfig;
+import org.example.constant.MessageType;
 import org.example.event.PushBusinessAckEvent;
 import org.example.pojo.bo.MessageBO;
 import org.example.websocket.GlobalWsMap;
@@ -31,7 +32,7 @@ public class PushBusinessAckListener {
     public void handleEvent(PushBusinessAckEvent pushBusinessAckEvent) {
 
         MessageBO messageBO = pushBusinessAckEvent.getMessageBO();
-        messageBO.setMessageType(1);
+        messageBO.setMessageType(MessageType.UNICAST.getMessageType());
         //谁处理谁back
         if (GlobalWsMap.isOnline(messageBO.getFromUserId())) {
             rabbitTemplate.convertAndSend(WsMessageMqConfig.WS_EXCHANGE_NAME, "message.ws", JSONObject.toJSONString(messageBO));

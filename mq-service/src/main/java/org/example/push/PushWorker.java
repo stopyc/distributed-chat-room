@@ -1,5 +1,6 @@
 package org.example.push;
 
+import org.example.constant.MessageType;
 import org.example.pojo.bo.MessageBO;
 
 /**
@@ -11,9 +12,9 @@ public interface PushWorker {
     void push2Group(MessageBO messageBO);
 
     default void push(MessageBO message) {
-        if (message.getMessageType() == 6) {
+        if (MessageType.isChatGroup(message.getMessageType())) {
             push2Group(message);
-        } else if (message.getMessageType() == 7) {
+        } else if (MessageType.isSingleChat(message.getMessageType())) {
             push2User(message);
         }
     }

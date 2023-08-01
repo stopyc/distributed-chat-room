@@ -2,6 +2,7 @@ package org.example.event_listener;
 
 import lombok.extern.slf4j.Slf4j;
 import org.example.adapter.MessageDTOAdapter;
+import org.example.constant.MessageType;
 import org.example.event.PushWsMessageEvent;
 import org.example.pojo.dto.MessageDTO;
 import org.example.pojo.vo.WsMessageVO;
@@ -39,17 +40,13 @@ public class PushWsMessageListener {
         //服务器收到消息,先判断这个消息是否之前已经收到了
         WsMessageVO wsMessageVO = pushWsMessageEvent.getWsMessageVO();
         Assert.assertNotNull(wsMessageVO.getFromUserId(), "消息发送者id不能为空!");
-        //必要检测
-        if (isBeat(wsMessageVO)) {
+        if (MessageType.isBeat(wsMessageVO.getMessageType())) {
             pong(wsMessageVO);
             return;
         }
+        //必要检测
         wsMessageVO.validate();
         //下行消息推送
         downLinkMessageRoute.downLinkMessagePush(wsMessageVO);
-    }
-
-    private boolean isBeat(WsMessageVO wsMessageVO) {
-        return wsMessageVO.getMessageType() == 4;
     }
 }

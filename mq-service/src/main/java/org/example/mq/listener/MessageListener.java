@@ -6,6 +6,7 @@ import com.rabbitmq.client.Channel;
 import lombok.extern.slf4j.Slf4j;
 import org.example.adapter.MessageDTOAdapter;
 import org.example.config.WsMessageMqConfig;
+import org.example.constant.MessageType;
 import org.example.pojo.bo.MessageBO;
 import org.example.pojo.dto.MessageDTO;
 import org.example.utils.PublisherUtil;
@@ -81,7 +82,7 @@ public class MessageListener {
      */
     private boolean doBusiness(MessageBO messageBO) {
         try {
-            if (messageBO.getMessageType() == 1) {
+            if (MessageType.isUnicast(messageBO.getMessageType())) {
                 MessageDTO businessMessageAck = MessageDTOAdapter.getBusinessMessageAck(messageBO);
                 GlobalWsMap.sendText(messageBO.getFromUserId(), businessMessageAck);
                 return true;
