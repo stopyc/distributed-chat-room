@@ -50,7 +50,7 @@ public class MessageDTOAdapter {
         return dto;
     }
 
-    public static MessageDTO getGroupChatMsgDTO(String msg, @NotNull Integer messageType) {
+    public static MessageDTO getMessageDTO(String msg, @NotNull Integer messageType) {
         MessageDTO dto = new MessageDTO();
         dto.setMessage(msg);
         dto.setMessageType(messageType);

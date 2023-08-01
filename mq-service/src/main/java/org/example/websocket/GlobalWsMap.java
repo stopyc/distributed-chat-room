@@ -49,7 +49,7 @@ public class GlobalWsMap {
         checkMyWebSocket(myWebSocket);
 
         if (WS_GROUP.size() >= MAX_CONNECT) {
-            MessageDTO messageDTO = MessageDTOAdapter.getGroupChatMsgDTO("当前连接数已达到最大连接数, 请稍后再试", 3);
+            MessageDTO messageDTO = MessageDTOAdapter.getMessageDTO("当前连接数已达到最大连接数, 请稍后再试", 3);
             sendText(myWebSocket, messageDTO);
             close(myWebSocket);
             throw new SystemException("当前连接数已达到最大连接数");
@@ -59,7 +59,7 @@ public class GlobalWsMap {
         }
         log.info("用户id 为: {} 上线了", myWebSocket.getUserId());
         WS_GROUP.put(myWebSocket.getUserId(), myWebSocket);
-        MessageDTO messageDTO = MessageDTOAdapter.getGroupChatMsgDTO("欢迎", 3);
+        MessageDTO messageDTO = MessageDTOAdapter.getMessageDTO("欢迎", 3);
         sendText(myWebSocket, messageDTO);
         log.info("map当前在线人数 为: {}", WS_GROUP.size());
     }
@@ -74,17 +74,17 @@ public class GlobalWsMap {
     private static void offlineInterval(MyWebSocket myWebSocket) {
         try {
             checkMyWebSocket(myWebSocket);
-            if (WS_GROUP.size() <= 0) {
-                //MessageDTO messageDTO = MessageBO2MessageDTO.getMessageDTO("错误的下线请求", 3);
-                //sendText(myWebSocket, messageDTO);
+            if (WS_GROUP.size() == 0) {
                 close(myWebSocket);
                 log.warn("错误的下线请求");
             }
         } finally {
-            MyWebSocket remove = WS_GROUP.remove(myWebSocket.getUserId());
-            if (remove != null) {
-                log.info("用户id 为: {} 下线了", myWebSocket.getUserId());
-                log.info("map当前在线人数 为: {}", WS_GROUP.size());
+            if (myWebSocket.getUserId() != null) {
+                MyWebSocket remove = WS_GROUP.remove(myWebSocket.getUserId());
+                if (remove != null) {
+                    log.info("用户id 为: {} 下线了", myWebSocket.getUserId());
+                    log.info("map当前在线人数 为: {}", WS_GROUP.size());
+                }
             }
         }
     }
@@ -103,8 +103,8 @@ public class GlobalWsMap {
     }
 
     private static void alarm(int onlineCount) {
-        log.warn("当前连接数已达到最大连接数的75%,当前连接数:{}", onlineCount);
-        //...
+        log.warn("当前连接数已达到最大连接数的 {} %,当前连接数:{}", DEFAULT_LOAD_FACTOR * 100, onlineCount);
+        //...通知服务
     }
 
     public static void sendText(MyWebSocket myWebSocket, MessageDTO messageDTO) {
@@ -112,7 +112,11 @@ public class GlobalWsMap {
             return;
         }
         if (myWebSocket.getSession().isOpen()) {
-            myWebSocket.getSession().getAsyncRemote().sendText(JSONObject.toJSONString(messageDTO));
+            try {
+                myWebSocket.getSession().getAsyncRemote().sendText(JSONObject.toJSONString(messageDTO));
+            } catch (Exception e) {
+                log.error("发送消息失败", e);
+            }
         }
     }
 
@@ -126,7 +130,7 @@ public class GlobalWsMap {
             try {
                 myWebSocket.getSession().close();
             } catch (IOException e) {
-                throw new SystemException(e.getMessage());
+                log.error("关闭连接失败", e);
             }
         }
     }
