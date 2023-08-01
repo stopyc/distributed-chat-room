@@ -78,6 +78,7 @@ public class MyWebSocket {
             this.userId = userBO.getUserId();
             this.session = session;
             this.userBO = userBO;
+            session.setMaxIdleTimeout(35);
             publisherUtil.userOnline(this, this);
         }
     }
