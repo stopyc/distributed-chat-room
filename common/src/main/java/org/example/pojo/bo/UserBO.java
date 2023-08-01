@@ -42,4 +42,6 @@ public class UserBO implements Serializable {
     private Integer isDeleted;
 
     private String lastIp;
+
+    private String color;
 }

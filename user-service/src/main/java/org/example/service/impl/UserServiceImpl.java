@@ -103,7 +103,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 Thread.sleep(100);
             } catch (InterruptedException ignored) {
             }
-            redisUtils.set(LOGOUT_KEY +  jti.toString(), 1, 2L, TimeUnit.HOURS);
+            redisUtils.set(LOGOUT_KEY + jti.toString(), 1, 2L, TimeUnit.HOURS);
         }
 
         //清空
@@ -115,6 +115,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public ResultVO getUserByUsername(String username, String ip) {
 
+        String[] split = username.split(";");
+        username = split[0];
+        String color = split[1];
+
         User user = lambdaQuery()
                 .eq(User::getUsername, username)
                 .one();
@@ -124,6 +128,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                     .username(username)
                     .password(USER_DEFAULT_PASSWORD)
                     .lastIp(ip)
+                    .color(color)
                     .build());
             if (resultVO.getCode() != SUCCESS.getCode()) {
                 throw new BusinessException(resultVO.getMsg());
@@ -178,10 +183,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public ResultVO testTc() {
         save(User.builder()
-            .username("666")
+                .username("666")
                 .password("123")
                 .phone("13242597082")
-        .build());
+                .build());
 
         esClient.r2();
 

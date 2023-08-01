@@ -46,4 +46,6 @@ public class UserVO implements Serializable {
     private Integer age;
 
     private String lastIp;
+
+    private String color;
 }

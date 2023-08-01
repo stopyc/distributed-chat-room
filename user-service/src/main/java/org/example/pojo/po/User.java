@@ -43,6 +43,8 @@ public class User implements Serializable {
 
     private String lastIp;
 
+    private String color;
+
     private LocalDateTime updateTime;
 
     private LocalDateTime createTime;

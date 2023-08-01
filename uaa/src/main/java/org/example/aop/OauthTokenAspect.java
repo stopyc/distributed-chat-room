@@ -53,6 +53,7 @@ public class OauthTokenAspect {
                     TokenDTO tokenDTO = TokenDTO.builder()
                             .token(body.getValue())
                             .userId(userBO.getUserId())
+                            .color(userBO.getColor())
                             .build();
                     return ResponseEntity
                             .status(HttpStatus.OK)
