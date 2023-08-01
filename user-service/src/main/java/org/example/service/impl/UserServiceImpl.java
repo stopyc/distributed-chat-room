@@ -11,10 +11,12 @@ import org.example.pojo.dto.UserAuthority;
 import org.example.pojo.dto.UserDTO;
 import org.example.pojo.exception.BusinessException;
 import org.example.pojo.exception.SystemException;
+import org.example.pojo.po.ChatRoom;
 import org.example.pojo.po.Role;
 import org.example.pojo.po.User;
 import org.example.pojo.vo.ResultVO;
 import org.example.pojo.vo.UserVO;
+import org.example.service.IChatRoomService;
 import org.example.service.MenuService;
 import org.example.service.RoleService;
 import org.example.service.UserService;
@@ -57,10 +59,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private RedisUtils redisUtils;
 
     @Resource
-    private ESClient  esClient;
+    private ESClient esClient;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Resource
+    private IChatRoomService chatRoomService;
 
     @Resource
     private UserMapper userMapper;
@@ -125,6 +130,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             user = lambdaQuery()
                     .eq(User::getUsername, username)
                     .one();
+            chatRoomService.save(new ChatRoom(1L, user.getUserId()));
         }
 
         //权限集合
