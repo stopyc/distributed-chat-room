@@ -2,6 +2,7 @@ package org.example.adapter;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.extra.spring.SpringUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.example.dao.UserDao;
 import org.example.pojo.bo.MessageBO;
 import org.example.pojo.bo.UserBO;
@@ -19,6 +20,7 @@ import java.util.Optional;
  * @create: 2023-07-24 11:05
  **/
 @Component
+@Slf4j
 public class MessageDTOAdapter {
 
     private static UserDao userDao;
@@ -27,17 +29,28 @@ public class MessageDTOAdapter {
         MessageDTOAdapter.userDao = SpringUtil.getBean(UserDao.class);
     }
 
-    public static MessageDTO getMessageDTO(MessageBO messageBO, @NotNull Integer messageType) {
+    public static MessageDTO getGroupChatMsgDTO(MessageBO messageBO, @NotNull Integer messageType) {
+        MessageDTO dto = getFromUserDTO(messageBO);
+        dto.setMessageType(messageType);
+        return dto;
+    }
+
+    private static MessageDTO getFromUserDTO(MessageBO messageBO) {
         MessageDTO dto = BeanUtil.copyProperties(messageBO, MessageDTO.class);
         UserBO fromUserBo = userDao.getUserBoByUserId(messageBO.getFromUserId());
         dto.setFromUserName(Optional.ofNullable(fromUserBo).map(UserBO::getUsername).orElse("未知用户"));
+        return dto;
+    }
+
+    public static MessageDTO getSingleChatMsgDTO(MessageBO messageBO, @NotNull Integer messageType) {
+        MessageDTO dto = getFromUserDTO(messageBO);
         UserBO toUserBo = userDao.getUserBoByUserId(messageBO.getToUserId());
         dto.setToUserName(Optional.ofNullable(toUserBo).map(UserBO::getUsername).orElse("未知用户"));
         dto.setMessageType(messageType);
         return dto;
     }
 
-    public static MessageDTO getMessageDTO(String msg, @NotNull Integer messageType) {
+    public static MessageDTO getGroupChatMsgDTO(String msg, @NotNull Integer messageType) {
         MessageDTO dto = new MessageDTO();
         dto.setMessage(msg);
         dto.setMessageType(messageType);

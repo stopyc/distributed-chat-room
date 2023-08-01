@@ -30,7 +30,7 @@ public class PushProxy implements PushWorker {
 
     @Override
     public void push2User(MessageBO messageBO) {
-        MessageDTO messageDTO = MessageDTOAdapter.getMessageDTO(messageBO, 7);
+        MessageDTO messageDTO = MessageDTOAdapter.getSingleChatMsgDTO(messageBO, 7);
         //单聊的消息进行存储。
         msgWriter.saveSingleChatMsg(messageDTO);
         GlobalWsMap.sendText(messageBO.getToUserId(), messageDTO);
@@ -38,7 +38,7 @@ public class PushProxy implements PushWorker {
 
     @Override
     public void push2Group(MessageBO messageBO) {
-        MessageDTO messageDTO = MessageDTOAdapter.getMessageDTO(messageBO, 6);
+        MessageDTO messageDTO = MessageDTOAdapter.getGroupChatMsgDTO(messageBO, 6);
         //群聊消息进行存储
         msgWriter.saveGroupChatMsg(messageDTO);
         Set<Long> userIdSet = userDao.getUserIdSetByChatRoomId(messageDTO.getChatRoomId());

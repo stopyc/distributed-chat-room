@@ -49,7 +49,7 @@ public class GlobalWsMap {
         checkMyWebSocket(myWebSocket);
 
         if (WS_GROUP.size() >= MAX_CONNECT) {
-            MessageDTO messageDTO = MessageDTOAdapter.getMessageDTO("当前连接数已达到最大连接数, 请稍后再试", 3);
+            MessageDTO messageDTO = MessageDTOAdapter.getGroupChatMsgDTO("当前连接数已达到最大连接数, 请稍后再试", 3);
             sendText(myWebSocket, messageDTO);
             close(myWebSocket);
             throw new SystemException("当前连接数已达到最大连接数");
@@ -59,7 +59,7 @@ public class GlobalWsMap {
         }
         log.info("用户id 为: {} 上线了", myWebSocket.getUserId());
         WS_GROUP.put(myWebSocket.getUserId(), myWebSocket);
-        MessageDTO messageDTO = MessageDTOAdapter.getMessageDTO("欢迎", 3);
+        MessageDTO messageDTO = MessageDTOAdapter.getGroupChatMsgDTO("欢迎", 3);
         sendText(myWebSocket, messageDTO);
         log.info("map当前在线人数 为: {}", WS_GROUP.size());
     }
