@@ -43,7 +43,7 @@ spring:
     type: redis
     redis:
       # 过期时间
-      time-to-live: 3600000
+      time-to-live: 36000000
       cache-null-values: true
       use-key-prefix: true
   # redis
@@ -71,7 +71,7 @@ spring:
 # 日志配置
 logging:
   level:
-    cn.itcast: debug
+    org.example: debug
   pattern:
     dateformat: MM-dd HH:mm:ss:SSS
 

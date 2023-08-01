@@ -138,22 +138,22 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         Set<String> menus = new HashSet<>();
 
         if (user.getUserId().equals(SUPER_ADMIN_USER_ID)) {
-            log.info("用户角色为超级管理员,拥有所有权限");
+            log.debug("用户角色为超级管理员,拥有所有权限");
             menus.addAll(Collections.singleton("*:*:*"));
         } else {
             List<Role> roleList = roleService.getRolesByUserId(user.getUserId());
 
             if (CollectionUtils.isEmpty(roleList)) {
-                log.info("用户的角色为空!");
+                log.debug("用户的角色为空!");
             }
 
-            log.info("获取用户角色,用户角色id为:{}", roleList);
+            log.debug("获取用户角色,用户角色id为:{}", roleList);
 
             //获取用户所有角色对应的权限集合
             for (Role role : roleList) {
                 menus.addAll(menuService.getMenuByRoleId(role.getRoleId()));
             }
-            log.info("获取用户权限集合,权限集合为:{}", menus);
+            log.debug("获取用户权限集合,权限集合为:{}", menus);
         }
 
 
@@ -165,7 +165,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 .password(user.getPassword())
                 .build();
 
-        log.info("该用户的权限为: {} ",menus);
+        log.debug("该用户的权限为: {} ", menus);
 
         return ResultVO.ok(
                 UserAuthority.builder()

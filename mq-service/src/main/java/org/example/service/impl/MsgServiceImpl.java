@@ -4,8 +4,8 @@ import org.example.constant.RedisKey;
 import org.example.dao.MsgReader;
 import org.example.pojo.dto.MessageDTO;
 import org.example.pojo.dto.ScrollingPaginationDTO;
-import org.example.pojo.exception.BusinessException;
-import org.example.pojo.vo.ScrollingPaginationVO;
+import org.example.pojo.vo.ChatRoomScrollVO;
+import org.example.pojo.vo.SingleScrollVO;
 import org.example.service.IMsgService;
 import org.springframework.stereotype.Service;
 
@@ -24,23 +24,23 @@ public class MsgServiceImpl implements IMsgService {
     private MsgReader msgReader;
 
     @Override
-    public ScrollingPaginationDTO<MessageDTO> getMsg(ScrollingPaginationVO scrollingPaginationVO) {
-        String prefixKey = null;
-        String msgKey = null;
+    public ScrollingPaginationDTO<MessageDTO> getChatRoomMsg(ChatRoomScrollVO chatRoomScrollVO) {
+        String prefixKey;
+        String msgKey;
         //群聊
-        if (scrollingPaginationVO.getMessageType() == 6) {
-            prefixKey = RedisKey.GROUP_CHAT;
-            if (scrollingPaginationVO.getChatRoomId() == null) {
-                throw new BusinessException("群聊ID不能为空");
-            }
-            msgKey = scrollingPaginationVO.getChatRoomId().toString();
-        } else if (scrollingPaginationVO.getMessageType() == 7) {
-            prefixKey = RedisKey.SINGLE_CHAT;
-            msgKey = (scrollingPaginationVO.getFromUserId() > scrollingPaginationVO.getToUserId()
-                    ? scrollingPaginationVO.getToUserId() + ":" + scrollingPaginationVO.getFromUserId()
-                    : scrollingPaginationVO.getFromUserId() + ":" + scrollingPaginationVO.getToUserId());
-        }
-        ScrollingPaginationDTO<MessageDTO> msg = msgReader.getMsg(prefixKey, msgKey, scrollingPaginationVO.getMax(), scrollingPaginationVO.getOffset(), MessageDTO.class);
-        return msg;
+        prefixKey = RedisKey.GROUP_CHAT;
+        msgKey = chatRoomScrollVO.getChatRoomId().toString();
+        return msgReader.getMsg(prefixKey, msgKey, chatRoomScrollVO.getMax(), chatRoomScrollVO.getOffset(), MessageDTO.class);
+    }
+
+    @Override
+    public ScrollingPaginationDTO<MessageDTO> getSingleMsg(SingleScrollVO singleScrollVO) {
+        String prefixKey;
+        String msgKey;
+        prefixKey = RedisKey.SINGLE_CHAT;
+        msgKey = (singleScrollVO.getFromUserId() > singleScrollVO.getToUserId()
+                ? singleScrollVO.getToUserId() + ":" + singleScrollVO.getFromUserId()
+                : singleScrollVO.getFromUserId() + ":" + singleScrollVO.getToUserId());
+        return msgReader.getMsg(prefixKey, msgKey, singleScrollVO.getMax(), singleScrollVO.getOffset(), MessageDTO.class);
     }
 }

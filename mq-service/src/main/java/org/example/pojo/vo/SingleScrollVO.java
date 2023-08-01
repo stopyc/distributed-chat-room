@@ -5,6 +5,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
+import org.hibernate.validator.constraints.Range;
+
+import javax.validation.constraints.NotNull;
 
 /**
  * @program: chat-room
@@ -17,23 +20,19 @@ import lombok.experimental.Accessors;
 @NoArgsConstructor
 @Accessors(chain = true)
 @Builder
-public class ScrollingPaginationVO {
+public class SingleScrollVO {
 
-    private Integer messageType;
-
+    @NotNull(message = "fromUserId不能为空")
     private Long fromUserId;
 
+    @NotNull(message = "toUserId不能为空")
     private Long toUserId;
 
-    private Long chatRoomId;
-
+    @NotNull(message = "最大值不能为空")
+    @Range(min = 0, message = "不能小于0")
     private Double max;
 
+    @NotNull(message = "偏移量不能为空")
+    @Range(min = 0, message = "不能小于0")
     private Long offset;
-
-    public void validate() {
-        if (max == null || offset == null || max < 0 || offset < 0) {
-            throw new IllegalArgumentException("滚动分页VO参数错误");
-        }
-    }
 }

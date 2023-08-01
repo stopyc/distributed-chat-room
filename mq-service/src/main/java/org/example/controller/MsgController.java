@@ -1,16 +1,16 @@
 package org.example.controller;
 
 import org.example.pojo.dto.ResultDTO;
-import org.example.pojo.exception.BusinessException;
-import org.example.pojo.vo.ScrollingPaginationVO;
+import org.example.pojo.vo.ChatRoomScrollVO;
+import org.example.pojo.vo.SingleScrollVO;
 import org.example.service.IMsgService;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.annotation.Resource;
-import java.util.Objects;
 
 /**
  * @program: chat-room
@@ -26,12 +26,13 @@ public class MsgController {
     @Resource
     private IMsgService msgService;
 
-    @PostMapping("/public/getMsg")
-    public ResultDTO getMsg(@RequestBody ScrollingPaginationVO scrollingPaginationVO) {
-        if (Objects.isNull(scrollingPaginationVO)) {
-            throw new BusinessException("参数不能为空");
-        }
-        scrollingPaginationVO.validate();
-        return ResultDTO.ok(msgService.getMsg(scrollingPaginationVO));
+    @PostMapping("/getMsg")
+    public ResultDTO getMsg(@RequestBody @Validated ChatRoomScrollVO chatRoomScrollVO) {
+        return ResultDTO.ok(msgService.getChatRoomMsg(chatRoomScrollVO));
+    }
+
+    @PostMapping("/getSingleMsg")
+    public ResultDTO getSingleMsg(@RequestBody @Validated SingleScrollVO singleScrollVO) {
+        return ResultDTO.ok(msgService.getSingleMsg(singleScrollVO));
     }
 }

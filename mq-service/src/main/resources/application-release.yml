@@ -64,7 +64,7 @@ spring:
   cache:
     type: redis
     redis:
-      time-to-live: 3600000
+      time-to-live: 36000000
       cache-null-values: true
       use-key-prefix: true
 
