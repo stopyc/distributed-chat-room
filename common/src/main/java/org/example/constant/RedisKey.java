@@ -23,6 +23,8 @@ public class RedisKey {
 
     public static final String GROUP_CHAT = "groupchat:";
 
+    public static final String USER_ONLINE = "user:online:";
+
     public static final Long ACK_EXPIRATION_TIME = 60L;
 
 }

@@ -31,13 +31,13 @@ public class RedisConfig {
         template.setHashKeySerializer(RedisSerializer.string());
         //// 设置Value的序列化
         //template.setValueSerializer(jsonRedisSerializer);
-        //template.setHashValueSerializer(jsonRedisSerializer);
         //
         //template.afterPropertiesSet();
 
         GenericToStringSerializer genericToStringSerializer = new GenericToStringSerializer(Object.class);
         template.setValueSerializer(genericToStringSerializer);
         template.setKeySerializer(new StringRedisSerializer());
+        template.setHashValueSerializer(jsonRedisSerializer);
         template.afterPropertiesSet();
         return template;
     }

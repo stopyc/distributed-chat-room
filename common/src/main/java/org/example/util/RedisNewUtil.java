@@ -81,6 +81,11 @@ public class RedisNewUtil {
         redisTemplate.expire(redisPrefix + key.toString() + hashKey.toString(), time, unit);
     }
 
+
+    public static void mdel(String redisPrefix, Object key, Object hashKey) {
+        redisTemplate.opsForHash().delete(redisPrefix + key.toString(), hashKey.toString());
+    }
+
     public static void put(String redisPrefix, Object key, Object value, long time, TimeUnit unit) {
         redisTemplate.opsForValue().set(redisPrefix + key.toString(), JSONObject.toJSONString(value), time, unit);
     }
@@ -144,4 +149,5 @@ public class RedisNewUtil {
         }
         return ScrollingPaginationDTO.<T>builder().resultList(resultSet).offset(curCount).max(curMax).build();
     }
+
 }

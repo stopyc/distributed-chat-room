@@ -2,9 +2,12 @@ package org.example.dao;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.extra.spring.SpringUtil;
+import org.example.constant.RedisKey;
 import org.example.feign.UserClient;
 import org.example.pojo.bo.UserBO;
 import org.example.pojo.dto.ResultDTO;
+import org.example.util.RedisNewUtil;
+import org.example.websocket.MyWebSocket;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
@@ -48,5 +51,13 @@ public class UserDao {
             return hashset;
         }
         return Collections.emptySet();
+    }
+
+    public void addCacheUser(MyWebSocket myWebSocket) {
+        RedisNewUtil.mput(RedisKey.USER_ONLINE, "", myWebSocket.getUserId(), myWebSocket.getUserBO());
+    }
+
+    public void removeCacheUser(MyWebSocket myWebSocket) {
+        RedisNewUtil.mdel(RedisKey.USER_ONLINE, "", myWebSocket.getUserId());
     }
 }
