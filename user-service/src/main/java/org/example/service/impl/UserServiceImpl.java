@@ -191,23 +191,17 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public ResultVO register(UserVO userVO) {
 
-        //1. 检验用户名是否重复
+        //1. 检验用户名和手机号是否重复
         String username = userVO.getUsername();
-        int count = lambdaQuery()
+        User one = lambdaQuery()
                 .eq(User::getUsername, username)
-                .count();
+                .or()
+                .eq(User::getPhone, userVO.getPhone())
+                .one();
 
-        if (count > 0) {
-            throw new BusinessException("用户名已经被注册了");
-        }
 
-        //3. 检验手机号是否重复
-        String phone = userVO.getPhone();
-        count = lambdaQuery()
-                .eq(User::getPhone,phone)
-                .count();
-        if (count > 0) {
-            throw new BusinessException("该手机号已经被注册了");
+        if (one != null) {
+            throw new BusinessException("用户名或手机号已经被注册了");
         }
 
         //4. 保存数据库
