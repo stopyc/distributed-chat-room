@@ -64,6 +64,12 @@ spring:
         core-size: 100
         max-size: 3000
         queue-capacity: 100
+  cache:
+    type: redis
+    redis:
+      time-to-live: 3600000
+      cache-null-values: true
+      use-key-prefix: true
 
 # mp配置
 mybatisplus:

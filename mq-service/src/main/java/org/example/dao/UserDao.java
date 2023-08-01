@@ -5,6 +5,7 @@ import cn.hutool.extra.spring.SpringUtil;
 import org.example.feign.UserClient;
 import org.example.pojo.bo.UserBO;
 import org.example.pojo.dto.ResultDTO;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Component;
 
 import java.util.*;
@@ -26,6 +27,7 @@ public class UserDao {
     }
 
 
+    @Cacheable(value = "user", key = "#userId")
     public UserBO getUserBoByUserId(Long userId) {
         ResultDTO resultDTO = userClient.getById(userId);
         if (resultDTO.getCode() == 200) {
@@ -34,6 +36,7 @@ public class UserDao {
         return null;
     }
 
+    @Cacheable(value = "chatroom", key = "#chatRoomId")
     public Set<Long> getUserIdSetByChatRoomId(Long chatRoomId) {
         ResultDTO userSetByChatRoomId = userClient.getUserSetByChatRoomId(chatRoomId);
         HashSet<Long> hashset = new HashSet<>();

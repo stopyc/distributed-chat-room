@@ -5,6 +5,7 @@ import org.example.feign.IdClient;
 import org.example.feign.UserClient;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
@@ -16,6 +17,7 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  **/
 @SpringBootApplication
 @EnableScheduling
+@EnableCaching
 @EnableFeignClients(clients = {IdClient.class, UserClient.class}, defaultConfiguration = FeignConfiguration.class)
 public class MQApplication {
     public static void main(String[] args) {
