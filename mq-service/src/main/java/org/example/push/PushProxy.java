@@ -30,9 +30,6 @@ public class PushProxy implements PushWorker {
 
     @Override
     public void push2User(MessageBO messageBO) {
-        if (messageBO.getToUserId() == null || messageBO.getFromUserId() == null) {
-            return;
-        }
         MessageDTO messageDTO = MessageDTOAdapter.getMessageDTO(messageBO, 7);
         //单聊的消息进行存储。
         msgWriter.saveSingleChatMsg(messageDTO);
@@ -41,9 +38,6 @@ public class PushProxy implements PushWorker {
 
     @Override
     public void push2Group(MessageBO messageBO) {
-        if (messageBO.getChatRoomId() == null) {
-            return;
-        }
         MessageDTO messageDTO = MessageDTOAdapter.getMessageDTO(messageBO, 6);
         //群聊消息进行存储
         msgWriter.saveGroupChatMsg(messageDTO);

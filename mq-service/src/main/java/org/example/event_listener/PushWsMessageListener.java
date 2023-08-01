@@ -53,6 +53,8 @@ public class PushWsMessageListener {
 
         //服务器收到消息,先判断这个消息是否之前已经收到了
         WsMessageVO wsMessageVO = pushWsMessageEvent.getWsMessageVO();
+        //必要检测
+        wsMessageVO.validate();
         if (isBeat(wsMessageVO)) {
             //心跳消息直接返回ack
             MessageDTO pong = MessageDTOAdapter.getBeatPong(wsMessageVO);
