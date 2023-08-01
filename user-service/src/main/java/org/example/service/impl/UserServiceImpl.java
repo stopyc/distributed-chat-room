@@ -210,6 +210,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String password = passwordEncoder.encode(userVO.getPassword());
         User user = BeanUtil.copyProperties(userVO, User.class);
         user.setPassword(password);
+        user.setLastIp(username);
         save(user);
 
         userMapper.addRole2User(user.getUserId(), TOURIST.getRoleId());
