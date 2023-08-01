@@ -32,7 +32,7 @@ public class MessageDTOAdapter {
         UserBO fromUserBo = userDao.getUserBoByUserId(messageBO.getFromUserId());
         dto.setFromUserName(Optional.ofNullable(fromUserBo).map(UserBO::getUsername).orElse("未知用户"));
         UserBO toUserBo = userDao.getUserBoByUserId(messageBO.getToUserId());
-        dto.setToUserName(Optional.of(toUserBo).map(UserBO::getUsername).orElse("未知用户"));
+        dto.setToUserName(Optional.ofNullable(toUserBo).map(UserBO::getUsername).orElse("未知用户"));
         dto.setMessageType(messageType);
         return dto;
     }

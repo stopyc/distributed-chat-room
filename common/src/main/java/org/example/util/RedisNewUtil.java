@@ -3,7 +3,9 @@ package org.example.util;
 import cn.hutool.extra.spring.SpringUtil;
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
+import org.example.pojo.dto.ScrollingPaginationDTO;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ZSetOperations;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.util.CollectionUtils;
@@ -114,5 +116,32 @@ public class RedisNewUtil {
 
     public static void expire(String redisPrefix, Object key, long time, TimeUnit unit) {
         redisTemplate.expire(redisPrefix + key.toString(), time, unit);
+    }
+
+    public static <T> ScrollingPaginationDTO<T> zget(final String key, double min, double max, long offset, long count, Class<T> tClass) {
+        Set<ZSetOperations.TypedTuple<Object>> set = redisTemplate.opsForZSet().reverseRangeByScoreWithScores(key, min, max, offset, count);
+        if (CollectionUtils.isEmpty(set)) {
+            ScrollingPaginationDTO<T> tScrollingPaginationDTO = new ScrollingPaginationDTO<>();
+            tScrollingPaginationDTO.setResultList(Collections.emptyList());
+            return tScrollingPaginationDTO;
+        }
+        long curMax = 0;
+        long curCount = 1;
+        Map mapValue;
+        Long userId = SecurityUtils.getUser().getUserId();
+        T temp = null;
+        List<T> resultSet = new ArrayList<>(set.size());
+        for (ZSetOperations.TypedTuple<Object> tuple : set) {
+            Object jsonString = tuple.getValue();
+            T obj = toBeanOrNull(jsonString, tClass);
+            resultSet.add(obj);
+            if (curMax == tuple.getScore().longValue()) {
+                curCount++;
+            } else {
+                curMax = tuple.getScore().longValue();
+                curCount = 1;
+            }
+        }
+        return ScrollingPaginationDTO.<T>builder().resultList(resultSet).offset(curCount).max(curMax).build();
     }
 }

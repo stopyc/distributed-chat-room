@@ -37,7 +37,8 @@ public class EngineeringChooseRule implements IChooseRule {
     public ServiceInstance choose(ServerWebExchange exchange, DiscoveryClient discoveryClient) {
         URI originalUrl = (URI) exchange.getAttributes().get(GATEWAY_REQUEST_URL_ATTR);
         String instancesId = originalUrl.getHost();
-        if("ws-service".equals(instancesId)){
+
+        if ("ws-service".equals(instancesId) && exchange.getRequest().getHeaders().containsKey("Sec-WebSocket-Key")) {
 
             List<ServiceInstance> instances = discoveryClient.getInstances(instancesId);
 

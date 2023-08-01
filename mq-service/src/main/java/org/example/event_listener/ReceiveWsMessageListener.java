@@ -35,7 +35,7 @@ public class ReceiveWsMessageListener {
         try {
             //1. 查看这条消息是单发还是群发
             MessageBO messageBO = receiveWsMessageEvent.getMessageBO();
-            //2. 调用推送代理层进行推送
+            //2. 调用推送消息代理层进行推送
             pushWorker.push(messageBO);
             //3. 发送业务ack
             publisherUtil.pushBusinessAck(this, messageBO);

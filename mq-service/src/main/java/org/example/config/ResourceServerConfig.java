@@ -58,6 +58,8 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
                 .mvcMatchers("/*/public/**").permitAll()
                 .mvcMatchers("/*/inner/**").permitAll()
                 .mvcMatchers("/ws/**").permitAll()
+                .mvcMatchers("/*/msg/**").permitAll()
+                .mvcMatchers("/msg/**").permitAll()
                 //这个表示需要携带token
                 .antMatchers("/**").authenticated()
                 //关闭跨站攻击
