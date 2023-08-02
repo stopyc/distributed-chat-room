@@ -39,6 +39,7 @@ public class MessageDTOAdapter {
         MessageDTO dto = BeanUtil.copyProperties(messageBO, MessageDTO.class);
         UserBO fromUserBo = userDao.getUserBoByUserId(messageBO.getFromUserId());
         dto.setFromUserName(Optional.ofNullable(fromUserBo).map(UserBO::getUsername).orElse("未知用户"));
+        dto.setColor(Optional.ofNullable(fromUserBo).map(UserBO::getColor).orElse("rgb(255,255,255)"));
         return dto;
     }
 

@@ -73,4 +73,6 @@ public class MessageDTO {
     private String toUserName;
 
     private Boolean ack;
+
+    private String color;
 }
