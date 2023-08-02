@@ -22,7 +22,7 @@ public class UserStatusServiceImpl implements IUserStatusService {
     @Override
     public ResultDTO getChatRoomUserStatus(Long chatRoomId) {
         Map<String, UserStatusDTO> mget = RedisNewUtil.mget(RedisKey.USER_ONLINE, "", UserStatusDTO.class);
-        return ResultDTO.ok(mget);
+        return ResultDTO.ok(mget.values());
     }
 
     @Override

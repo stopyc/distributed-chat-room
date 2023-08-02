@@ -27,5 +27,7 @@ public class UserStatusDTO {
 
     private String color;
 
+    private String icon;
+
     private Boolean online;
 }
