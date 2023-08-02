@@ -116,6 +116,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public ResultVO getUserByUsername(String username, String ip) {
 
         String[] split = username.split(";");
+        if (split.length != 2) {
+            throw new BusinessException("用户名格式错误");
+        }
         username = split[0];
         String color = split[1];
 
