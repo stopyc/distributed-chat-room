@@ -32,23 +32,33 @@ public class UserDao {
 
     @Cacheable(value = "user", key = "#userId")
     public UserBO getUserBoByUserId(Long userId) {
-        ResultDTO resultDTO = userClient.getById(userId);
-        if (resultDTO.getCode() == 200) {
-            return BeanUtil.mapToBean((LinkedHashMap) resultDTO.getData(), UserBO.class, true);
+        ResultDTO resultDTO = null;
+        try {
+            resultDTO = userClient.getById(userId);
+            if (resultDTO.getCode() == 200) {
+                return BeanUtil.mapToBean((LinkedHashMap) resultDTO.getData(), UserBO.class, true);
+            }
+        } catch (Exception e) {
+            return new UserBO();
         }
-        return null;
+        return new UserBO();
     }
 
     @Cacheable(value = "chatroom", key = "#chatRoomId")
     public Set<Long> getUserIdSetByChatRoomId(Long chatRoomId) {
-        ResultDTO userSetByChatRoomId = userClient.getUserSetByChatRoomId(chatRoomId);
-        HashSet<Long> hashset = new HashSet<>();
-        if (userSetByChatRoomId.getCode() == 200) {
-            List data = (ArrayList) userSetByChatRoomId.getData();
-            for (Object datum : data) {
-                hashset.add((long) ((int) datum));
+        ResultDTO userSetByChatRoomId = null;
+        try {
+            userSetByChatRoomId = userClient.getUserSetByChatRoomId(chatRoomId);
+            HashSet<Long> hashset = new HashSet<>();
+            if (userSetByChatRoomId.getCode() == 200) {
+                List data = (ArrayList) userSetByChatRoomId.getData();
+                for (Object datum : data) {
+                    hashset.add((long) ((int) datum));
+                }
+                return hashset;
             }
-            return hashset;
+        } catch (Exception e) {
+            return Collections.emptySet();
         }
         return Collections.emptySet();
     }

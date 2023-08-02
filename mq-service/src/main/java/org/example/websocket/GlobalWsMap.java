@@ -113,6 +113,7 @@ public class GlobalWsMap {
         }
         if (myWebSocket.getSession().isOpen()) {
             try {
+                log.info("给用户id 为 {} 的用户发送信息", myWebSocket.getUserId());
                 myWebSocket.getSession().getAsyncRemote().sendText(JSONObject.toJSONString(messageDTO));
             } catch (Exception e) {
                 log.error("发送消息失败", e);

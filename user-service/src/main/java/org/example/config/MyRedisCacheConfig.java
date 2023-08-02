@@ -60,6 +60,4 @@ public class MyRedisCacheConfig extends CachingConfigurerSupport {
         }
         return config;
     }
-
-
 }

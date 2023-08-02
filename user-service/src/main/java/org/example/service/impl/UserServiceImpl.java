@@ -195,7 +195,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    @CacheEvict(value = "chatroom")
+    @CacheEvict(cacheNames = "chatroom", allEntries = true)
     public ResultVO register(UserVO userVO) {
 
         //1. 检验用户名和手机号是否重复

@@ -111,6 +111,18 @@ public class RedisNewUtil {
         return toBeanOrNull(o, tClass);
     }
 
+    public static <T> Map<String, T> mget(String redisPrefix, Object key, Class<T> tClass) {
+        Map<String, String> map = redisTemplate.opsForHash().entries(redisPrefix + key.toString());
+        if (CollectionUtils.isEmpty(map)) {
+            return Collections.emptyMap();
+        }
+        Map<String, T> resultMap = new HashMap<>(map.size());
+        map.forEach((k, v) -> {
+            resultMap.put(k, toBeanOrNull(v, tClass));
+        });
+        return resultMap;
+    }
+
     public static <T> Set<T> zget(String redisPrefix, Object key, double score, Class<T> tClass) {
         Set<Object> set = redisTemplate.opsForZSet().rangeByScore(redisPrefix + key.toString(), score, score);
         if (CollectionUtils.isEmpty(set)) {

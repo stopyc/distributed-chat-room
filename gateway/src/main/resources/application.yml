@@ -79,7 +79,7 @@ spring:
         - id: ws-service # 路由id，自定义，只要唯一即可
           uri: lb://ws-service # 路由的目标地址 lb就是负载均衡，后面跟服务名称
           predicates: # 路由断言，也就是判断请求是否符合路由规则的条件
-            - Path=/msg/**
+            - Path=/msg/**,/status/**
           filters:
             - name: Retry
               args:

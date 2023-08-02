@@ -40,7 +40,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
         ResultVO userByUsername = null;
 
-        userByUsername = userClient.getByUsername(username);
+        try {
+            userByUsername = userClient.getByUsername(username);
+        } catch (Exception e) {
+            throw new FeignException(e.getMessage());
+        }
 
         if (userByUsername.getCode() != REQUEST_SUCCESS.getCode()) {
             throw new FeignException(userByUsername.getMsg());
