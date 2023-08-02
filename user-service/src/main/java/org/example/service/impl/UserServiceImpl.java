@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import com.alibaba.fastjson.JSONObject;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
+import org.example.constant.RedisKey;
 import org.example.feign.ESClient;
 import org.example.mapper.UserMapper;
 import org.example.pojo.bo.UserBO;
@@ -20,9 +21,9 @@ import org.example.service.IChatRoomService;
 import org.example.service.MenuService;
 import org.example.service.RoleService;
 import org.example.service.UserService;
+import org.example.util.RedisNewUtil;
 import org.example.util.RedisUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -116,11 +117,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public ResultVO getUserByUsername(String username, String ip) {
 
         String[] split = username.split(";");
-        if (split.length != 2) {
+        if (split.length != 3) {
             throw new BusinessException("用户名格式错误");
         }
         username = split[0];
         String color = split[1];
+        String icon = split[2];
 
         User user = lambdaQuery()
                 .eq(User::getUsername, username)
@@ -133,6 +135,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                     .password(USER_DEFAULT_PASSWORD)
                     .lastIp(ip)
                     .color(color)
+                    .icon(icon)
                     .build());
             if (resultVO.getCode() != SUCCESS.getCode()) {
                 throw new BusinessException(resultVO.getMsg());
@@ -141,6 +144,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                     .eq(User::getUsername, username)
                     .eq(User::getColor, color)
                     .one();
+            RedisNewUtil.del(RedisKey.CHATROOM, ":1");
             chatRoomService.save(new ChatRoom(1L, user.getUserId()));
         }
 
@@ -200,7 +204,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     @Override
-    @CacheEvict(cacheNames = "chatroom", allEntries = true)
     public ResultVO register(UserVO userVO) {
 
         //1. 检验用户名和手机号是否重复

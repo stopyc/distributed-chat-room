@@ -75,4 +75,6 @@ public class MessageDTO {
     private Boolean ack;
 
     private String color;
+
+    private String icon;
 }

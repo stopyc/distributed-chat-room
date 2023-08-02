@@ -27,4 +27,5 @@ public class RedisKey {
 
     public static final Long ACK_EXPIRATION_TIME = 60L;
 
+    public static final String CHATROOM = "chatroom:";
 }

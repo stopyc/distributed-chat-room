@@ -19,6 +19,7 @@ import javax.websocket.*;
 import javax.websocket.server.PathParam;
 import javax.websocket.server.ServerEndpoint;
 import java.io.IOException;
+import java.net.URI;
 
 
 /**
@@ -67,16 +68,16 @@ public class MyWebSocket {
                        @PathParam("token") String token) {
         //需要对同一个用户的上线下线请求进行同步处理，解决ws连接快速失败问题
         synchronized (monitor) {
+            this.session = session;
             checkToken(token, session);
             UserBO userBO = null;
             try {
                 userBO = JWTUtils.parseJWT2UserBo(token);
             } catch (BusinessException e) {
-                throwError(session, e.getMessage());
-                throw new BusinessException(e.getMessage());
+                throwError(session, "token已经过期了");
+                throw new BusinessException("token已经过期了");
             }
             this.userId = userBO.getUserId();
-            this.session = session;
             this.userBO = userBO;
             //session.setMaxIdleTimeout(35);
             publisherUtil.userOnline(this, this);
@@ -120,13 +121,17 @@ public class MyWebSocket {
     }
 
     private void throwError(Session session, String message) {
-        session.getAsyncRemote().sendText(message);
         try {
-            if (session.isOpen()) {
+            if (session != null && session.isOpen()) {
+                session.getAsyncRemote().sendText(message);
+                String id = session.getId();
+                log.info("id 为: {}", id);
+                URI requestURI = session.getRequestURI();
+                log.info("requestURI 为: {}", requestURI);
+                this.session = null;
                 session.close();
             }
-        } catch (IOException e) {
-            throw new BusinessException(e.getMessage());
+        } catch (Exception ignored) {
         }
         throw new BusinessException(message);
     }

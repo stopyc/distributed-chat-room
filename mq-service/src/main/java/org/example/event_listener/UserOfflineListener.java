@@ -34,6 +34,10 @@ public class UserOfflineListener {
     @Async
     @EventListener(classes = UserOfflineEvent.class)
     public void updateCacheStatus(UserOfflineEvent userOfflineEvent) {
-        userDao.removeCacheUser(userOfflineEvent.getMyWebSocket());
+        MyWebSocket myWebSocket = userOfflineEvent.getMyWebSocket();
+        if (myWebSocket.getUserId() == null || myWebSocket.getUserBO() == null || myWebSocket.getSession() == null) {
+            return;
+        }
+        userDao.removeCacheUser(myWebSocket);
     }
 }

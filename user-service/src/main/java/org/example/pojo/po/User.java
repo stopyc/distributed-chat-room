@@ -45,6 +45,8 @@ public class User implements Serializable {
 
     private String color;
 
+    private String icon;
+
     private LocalDateTime updateTime;
 
     private LocalDateTime createTime;

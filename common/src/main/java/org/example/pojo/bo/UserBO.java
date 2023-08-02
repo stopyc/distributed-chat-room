@@ -44,4 +44,6 @@ public class UserBO implements Serializable {
     private String lastIp;
 
     private String color;
+
+    private String icon;
 }

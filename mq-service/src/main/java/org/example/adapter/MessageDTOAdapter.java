@@ -40,6 +40,7 @@ public class MessageDTOAdapter {
         UserBO fromUserBo = userDao.getUserBoByUserId(messageBO.getFromUserId());
         dto.setFromUserName(Optional.ofNullable(fromUserBo).map(UserBO::getUsername).orElse("未知用户"));
         dto.setColor(Optional.ofNullable(fromUserBo).map(UserBO::getColor).orElse("rgb(255,255,255)"));
+        dto.setIcon(Optional.ofNullable(fromUserBo).map(UserBO::getIcon).orElse("icon-dad"));
         return dto;
     }
 
