@@ -121,6 +121,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         User user = lambdaQuery()
                 .eq(User::getUsername, username)
+                .eq(User::getColor, color)
                 .one();
 
         if (Objects.isNull(user)) {
@@ -135,6 +136,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             }
             user = lambdaQuery()
                     .eq(User::getUsername, username)
+                    .eq(User::getColor, color)
                     .one();
             chatRoomService.save(new ChatRoom(1L, user.getUserId()));
         }
@@ -202,10 +204,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         String username = userVO.getUsername();
         User one = lambdaQuery()
                 .eq(User::getUsername, username)
+                .eq(User::getColor, userVO.getColor())
                 .or()
                 .eq(User::getPhone, userVO.getPhone())
                 .one();
-
 
         if (one != null) {
             throw new BusinessException("用户名或手机号已经被注册了");
