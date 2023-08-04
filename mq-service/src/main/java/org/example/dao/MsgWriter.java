@@ -5,6 +5,7 @@ import org.example.pojo.bo.MessageBO;
 import org.example.pojo.dto.MessageDTO;
 import org.example.pojo.vo.WsMessageVO;
 import org.example.util.RedisNewUtil;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -59,6 +60,7 @@ public class MsgWriter {
         RedisNewUtil.zput(RedisKey.OK_MESSAGE_KEY, messageBO.getFromUserId(), messageBO, messageBO.getClientMessageId());
     }
 
+    @Async
     public void saveAckMsg(MessageBO messageBO) {
         //Redis的Ack队列
         RedisNewUtil.put(RedisKey.ACK_MESSAGE_KEY,

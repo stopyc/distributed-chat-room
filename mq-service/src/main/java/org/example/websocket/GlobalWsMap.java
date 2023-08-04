@@ -107,6 +107,7 @@ public class GlobalWsMap {
         //...通知服务
     }
 
+
     public static void sendText(MyWebSocket myWebSocket, MessageDTO messageDTO) {
         if (Objects.isNull(myWebSocket)) {
             return;
@@ -119,6 +120,7 @@ public class GlobalWsMap {
             }
         }
     }
+
 
     public static void sendText(Long userId, MessageDTO messageDTO) {
         MyWebSocket myWebSocket = WS_GROUP.get(userId);

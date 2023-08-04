@@ -32,11 +32,12 @@ import java.util.concurrent.ConcurrentHashMap;
  **/
 @Component
 @Slf4j
+@SuppressWarnings("all")
 public class MessageBuffer {
 
     private static final Map<Long, Long> offsetMap = new ConcurrentHashMap<>(600);
 
-    private static final long BUFFER_SIZE = 10;
+    private static final long BUFFER_SIZE = 50;
 
     @Resource
     private ApplicationContext applicationContext;
