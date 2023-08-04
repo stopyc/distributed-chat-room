@@ -82,7 +82,7 @@ public class MessageListener {
      */
     private boolean doBusiness(MessageBO messageBO) {
         try {
-            if (MessageType.isUnicast(messageBO.getMessageType())) {
+            if (MessageType.isBusinessAck(messageBO.getMessageType())) {
                 MessageDTO businessMessageAck = MessageDTOAdapter.getBusinessMessageAck(messageBO);
                 GlobalWsMap.sendText(messageBO.getFromUserId(), businessMessageAck);
                 return true;

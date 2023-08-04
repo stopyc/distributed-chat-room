@@ -30,7 +30,7 @@ public class MsgServiceImpl implements IMsgService {
         //群聊
         prefixKey = RedisKey.GROUP_CHAT;
         msgKey = chatRoomScrollVO.getChatRoomId().toString();
-        return msgReader.getMsg(prefixKey, msgKey, chatRoomScrollVO.getMax(), chatRoomScrollVO.getOffset(), MessageDTO.class);
+        return msgReader.getMsg(prefixKey, msgKey, chatRoomScrollVO.getMax(), chatRoomScrollVO.getOffset(), 20, MessageDTO.class);
     }
 
     @Override
@@ -41,6 +41,6 @@ public class MsgServiceImpl implements IMsgService {
         msgKey = (singleScrollVO.getFromUserId() > singleScrollVO.getToUserId()
                 ? singleScrollVO.getToUserId() + ":" + singleScrollVO.getFromUserId()
                 : singleScrollVO.getFromUserId() + ":" + singleScrollVO.getToUserId());
-        return msgReader.getMsg(prefixKey, msgKey, singleScrollVO.getMax(), singleScrollVO.getOffset(), MessageDTO.class);
+        return msgReader.getMsg(prefixKey, msgKey, singleScrollVO.getMax(), singleScrollVO.getOffset(), 20, MessageDTO.class);
     }
 }

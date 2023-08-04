@@ -3,6 +3,7 @@ package org.example.adapter;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.example.constant.MessageType;
 import org.example.dao.UserDao;
 import org.example.pojo.bo.MessageBO;
 import org.example.pojo.bo.UserBO;
@@ -62,7 +63,7 @@ public class MessageDTOAdapter {
     public static MessageDTO getMessageAck(MessageBO messageBO) {
         MessageDTO mack = BeanUtil.copyProperties(messageBO, MessageDTO.class);
         mack.setAck(true);
-        mack.setMessageType(0);
+        mack.setMessageType(MessageType.OFFSET_ACK.getMessageType());
         mack.setMessage(null);
         mack.setByteArray(null);
         return mack;
@@ -71,7 +72,7 @@ public class MessageDTOAdapter {
     public static MessageDTO getBusinessMessageAck(MessageBO messageBO) {
         MessageDTO mack = BeanUtil.copyProperties(messageBO, MessageDTO.class);
         mack.setAck(true);
-        mack.setMessageType(1);
+        mack.setMessageType(MessageType.BUSINESS_ACK.getMessageType());
         mack.setMessage(null);
         mack.setByteArray(null);
         return mack;
@@ -80,7 +81,7 @@ public class MessageDTOAdapter {
     public static MessageDTO getMessageNak(MessageBO messageBO) {
         MessageDTO mack = BeanUtil.copyProperties(messageBO, MessageDTO.class);
         mack.setAck(false);
-        mack.setMessageType(0);
+        mack.setMessageType(MessageType.OFFSET_ACK.getMessageType());
         mack.setMessage(null);
         mack.setByteArray(null);
         return mack;
@@ -89,7 +90,7 @@ public class MessageDTOAdapter {
     public static MessageDTO getBusinessMessageNak(MessageBO messageBO) {
         MessageDTO mack = BeanUtil.copyProperties(messageBO, MessageDTO.class);
         mack.setAck(false);
-        mack.setMessageType(1);
+        mack.setMessageType(MessageType.BUSINESS_ACK.getMessageType());
         mack.setMessage(null);
         mack.setByteArray(null);
         return mack;
@@ -98,7 +99,7 @@ public class MessageDTOAdapter {
     public static MessageDTO getBeatPong(WsMessageVO wsMessageVO) {
         MessageDTO pong = BeanUtil.copyProperties(wsMessageVO, MessageDTO.class);
         pong.setAck(true);
-        pong.setMessageType(4);
+        pong.setMessageType(MessageType.HEARTBEAT.getMessageType());
         pong.setMessage("pong");
         pong.setByteArray(null);
         return pong;

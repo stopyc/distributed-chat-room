@@ -13,7 +13,11 @@ import org.example.websocket.MyWebSocket;
  **/
 @Data
 @Builder
-public class WsMessageVO {
+public class WsMessageVO implements Cloneable {
+    @Override
+    public WsMessageVO clone() throws CloneNotSupportedException {
+        return (WsMessageVO) super.clone();
+    }
 
     private Long clientMessageId;
 

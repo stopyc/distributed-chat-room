@@ -32,7 +32,7 @@ public class PushBusinessAckListener {
     public void handleEvent(PushBusinessAckEvent pushBusinessAckEvent) {
 
         MessageBO messageBO = pushBusinessAckEvent.getMessageBO();
-        messageBO.setMessageType(MessageType.UNICAST.getMessageType());
+        messageBO.setMessageType(MessageType.BUSINESS_ACK.getMessageType());
         //谁处理谁back
         if (GlobalWsMap.isOnline(messageBO.getFromUserId())) {
             rabbitTemplate.convertAndSend(WsMessageMqConfig.WS_EXCHANGE_NAME, "message.ws", JSONObject.toJSONString(messageBO));

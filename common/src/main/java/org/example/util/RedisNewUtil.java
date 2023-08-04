@@ -2,6 +2,7 @@ package org.example.util;
 
 import cn.hutool.extra.spring.SpringUtil;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.serializer.SerializerFeature;
 import lombok.extern.slf4j.Slf4j;
 import org.example.pojo.dto.ScrollingPaginationDTO;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -69,7 +70,7 @@ public class RedisNewUtil {
     }
 
     public static void zput(String redisPrefix, Object key, Object object, double score) {
-        redisTemplate.opsForZSet().add(redisPrefix + key.toString(), JSONObject.toJSONString(object), score);
+        redisTemplate.opsForZSet().add(redisPrefix + key.toString(), JSONObject.toJSONString(object, SerializerFeature.WriteMapNullValue), score);
     }
 
     public static void mput(String redisPrefix, Object key, Object hashKey, Object value) {
@@ -160,6 +161,14 @@ public class RedisNewUtil {
             }
         }
         return ScrollingPaginationDTO.<T>builder().resultList(resultSet).offset(curCount).max(curMax).build();
+    }
+
+    public static <T> Set<ZSetOperations.TypedTuple<Object>> zget(String redisPrefix, Object key, long max, long offset, long count, Class<T> tClass) {
+        Set<ZSetOperations.TypedTuple<Object>> set = redisTemplate.opsForZSet().reverseRangeByScoreWithScores(redisPrefix + key.toString(), 0, max, offset, count);
+        if (CollectionUtils.isEmpty(set)) {
+            return new HashSet<>();
+        }
+        return set;
     }
 
 }

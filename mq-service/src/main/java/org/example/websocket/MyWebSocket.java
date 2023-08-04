@@ -28,7 +28,7 @@ import java.net.URI;
  * @author: stop.yc
  * @create: 2022-09-09 20:11
  **/
-@ServerEndpoint(value = "/ws/{token}")
+@ServerEndpoint(value = "/ws/{userId}/{token}")
 @Slf4j
 @Component
 @EqualsAndHashCode(callSuper = false)
@@ -59,13 +59,17 @@ public class MyWebSocket {
 
     private final Object monitor = new Object();
 
+    private final Object offsetInitLock = new Object();
+
+
     /**
      * 鉴权, 统一token认证,并对字段进行赋值
      * * 建立连接,维护服务器中的hashMap
      */
     @OnOpen
     public void onOpen(Session session,
-                       @PathParam("token") String token) {
+                       @PathParam("token") String token,
+                       @PathParam("userId") String userId) {
         //需要对同一个用户的上线下线请求进行同步处理，解决ws连接快速失败问题
         synchronized (monitor) {
             this.session = session;

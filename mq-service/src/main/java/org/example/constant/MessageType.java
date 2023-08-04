@@ -11,9 +11,9 @@ import lombok.Getter;
 @AllArgsConstructor
 public enum MessageType {
 
-    BROADCAST(0, "广播类型"),
+    OFFSET_ACK(0, "offset ack"),
 
-    UNICAST(1, "单播类型"),
+    BUSINESS_ACK(1, "業務ack"),
 
     REQUEST(2, "请求类型"),
 
@@ -43,7 +43,7 @@ public enum MessageType {
         return SINGLE_CHAT.messageType.equals(messageType);
     }
 
-    public static boolean isUnicast(Integer messageType) {
-        return UNICAST.messageType.equals(messageType);
+    public static boolean isBusinessAck(Integer messageType) {
+        return BUSINESS_ACK.messageType.equals(messageType);
     }
 }

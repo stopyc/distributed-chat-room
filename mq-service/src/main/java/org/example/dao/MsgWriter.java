@@ -1,11 +1,14 @@
 package org.example.dao;
 
 import org.example.constant.RedisKey;
+import org.example.pojo.bo.MessageBO;
 import org.example.pojo.dto.MessageDTO;
+import org.example.pojo.vo.WsMessageVO;
 import org.example.util.RedisNewUtil;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
+import java.util.concurrent.TimeUnit;
 
 /**
  * @program: chat-room
@@ -39,5 +42,29 @@ public class MsgWriter {
         }
         //群聊消息进行存储
         RedisNewUtil.zput(RedisKey.GROUP_CHAT, messageDTO.getChatRoomId(), messageDTO, messageDTO.getMessageId());
+    }
+
+
+    public void saveDurableMsg(WsMessageVO wsMessageVO) {
+        try {
+            WsMessageVO clone = wsMessageVO.clone();
+            clone.setMyWebSocket(null);
+            RedisNewUtil.zput(RedisKey.MESSAGE_KEY, clone.getFromUserId(), clone, clone.getClientMessageId());
+        } catch (CloneNotSupportedException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    public void saveDurableMsg(MessageBO messageBO) {
+        RedisNewUtil.zput(RedisKey.OK_MESSAGE_KEY, messageBO.getFromUserId(), messageBO, messageBO.getClientMessageId());
+    }
+
+    public void saveAckMsg(MessageBO messageBO) {
+        //Redis的Ack队列
+        RedisNewUtil.put(RedisKey.ACK_MESSAGE_KEY,
+                messageBO.getFromUserId() + ":" + messageBO.getClientMessageId(),
+                messageBO,
+                RedisKey.ACK_EXPIRATION_TIME,
+                TimeUnit.MILLISECONDS);
     }
 }

@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.example.config.WsMessageMqConfig;
 import org.example.constant.RedisKey;
+import org.example.dao.MsgWriter;
 import org.example.mq.correlationData.MyMessageCorrelationData;
 import org.example.pojo.bo.MessageBO;
 import org.example.pojo.exception.SystemException;
@@ -20,7 +21,6 @@ import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @author YC104
@@ -36,10 +36,13 @@ public class RedisListener implements MessageListener {
     @Resource
     private RabbitTemplate rabbitTemplate;
 
+
+    @Resource
+    private MsgWriter msgWriter;
+
     @Override
     public void onMessage(Message message, byte[] pattern) {
         String expiredKey = message.toString();
-        log.info("失效的redis是:" + expiredKey);
         RedisSerializer<?> serializer = redisTemplate.getValueSerializer();
         String channel = String.valueOf(serializer.deserialize(message.getChannel()));
         String body = String.valueOf(serializer.deserialize(message.getBody()));
@@ -59,16 +62,12 @@ public class RedisListener implements MessageListener {
             if (GlobalWsMap.isOnline(Long.parseLong(userIdStr))) {
                 log.info("ack队列中的用户id 为 {} 消息id为 {} 的消息已经发送超时,需要重新发送到交换机中!", userIdStr, clientMessageIdStr);
                 //3.1 是的话就从持久队列中重新获取,然后推送给交换机,并重新声明ack消息
-                Set<MessageBO> durableMsg = RedisNewUtil.zget(RedisKey.MESSAGE_KEY, userIdStr, Long.parseLong(clientMessageIdStr), MessageBO.class);
+                Set<MessageBO> durableMsg = RedisNewUtil.zget(RedisKey.OK_MESSAGE_KEY, userIdStr, Long.parseLong(clientMessageIdStr), MessageBO.class);
                 if (durableMsg.size() > 1) {
                     throw new SystemException("redis中的消息队列中的客户端消息id 为 " + clientMessageIdStr + " 不止一条,请检查!");
                 }
                 for (MessageBO messageBO : durableMsg) {
-                    RedisNewUtil.put(RedisKey.ACK_MESSAGE_KEY,
-                            messageBO.getFromUserId() + ":" + messageBO.getClientMessageId(),
-                            messageBO,
-                            RedisKey.ACK_EXPIRATION_TIME,
-                            TimeUnit.SECONDS);
+                    msgWriter.saveAckMsg(messageBO);
                     push2Mq(messageBO);
                 }
             }

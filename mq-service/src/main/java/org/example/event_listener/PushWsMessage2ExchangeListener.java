@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.example.config.WsMessageMqConfig;
 import org.example.constant.RedisKey;
+import org.example.dao.MsgWriter;
 import org.example.event.PushWsMessage2ExchangeEvent;
 import org.example.mq.correlationData.MyMessageCorrelationData;
 import org.example.pojo.bo.MessageBO;
@@ -17,7 +18,6 @@ import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 
 /**
  * @program: chat-room
@@ -31,6 +31,9 @@ public class PushWsMessage2ExchangeListener {
 
     @Resource
     private RabbitTemplate rabbitTemplate;
+
+    @Resource
+    private MsgWriter msgWriter;
 
     @Async
     @EventListener(classes = PushWsMessage2ExchangeEvent.class)
@@ -49,11 +52,7 @@ public class PushWsMessage2ExchangeListener {
                 throw new SystemException("redis中的消息队列中的客户端消息id 为 " + correlationData.getClientMessageId() + " 不止一条或者为空,请检查!");
             }
             for (MessageBO messageBo : messageBoSet) {
-                RedisNewUtil.put(RedisKey.ACK_MESSAGE_KEY,
-                        messageBo.getFromUserId() + ":" + messageBo.getClientMessageId(),
-                        messageBo,
-                        RedisKey.ACK_EXPIRATION_TIME,
-                        TimeUnit.SECONDS);
+                msgWriter.saveAckMsg(messageBo);
                 push2Mq(correlationData, messageBo);
             }
         }

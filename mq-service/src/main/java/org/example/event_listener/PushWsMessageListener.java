@@ -47,6 +47,6 @@ public class PushWsMessageListener {
         //必要检测
         wsMessageVO.validate();
         //下行消息推送
-        downLinkMessageRoute.downLinkMessagePush(wsMessageVO);
+        downLinkMessageRoute.downLinkMessagePushV2(wsMessageVO);
     }
 }

@@ -47,20 +47,20 @@ public class EngineeringChooseRule implements IChooseRule {
 
             if (pathStr.contains("/ws")) {
                 String[] split = pathStr.split("/");
-                if (split.length == 7) {
+                if (split.length == 4) {
 
-                    String chatRoomId = split[2];
+                    String userId = split[2];
 
                     //String server = GateWayHashUtils.getServer(chatRoomId);
 
                     HashRing hashRingRedis = HashRingRedis.newInstance(server);
-                    Address address = hashRingRedis.getAddress(chatRoomId);
+                    Address address = hashRingRedis.getAddress(userId);
 
                     log.info("ws服务站点数量为 为: {}", instances.size());
                     for (ServiceInstance instance : instances) {
                         //if (address != null && address.equals(instance.getHost() + ":" + instance.getPort())) {
                         if (address != null && address.getIp().equals(instance.getHost()) && address.getPort().equals(instance.getPort())) {
-                            log.info("房间id为 {} 的用户请求的ws连接到的机器 ip:端口为 {}:{}", chatRoomId, instance.getHost(), instance.getPort());
+                            log.info("id为 {} 的用户请求的ws连接到的机器 ip:端口为 {}:{}", userId, instance.getHost(), instance.getPort());
                             return instance;
                         }
                     }
