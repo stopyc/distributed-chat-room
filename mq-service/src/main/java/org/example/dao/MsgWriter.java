@@ -2,6 +2,7 @@ package org.example.dao;
 
 import org.example.constant.RedisKey;
 import org.example.pojo.bo.MessageBO;
+import org.example.pojo.dto.AtDTO;
 import org.example.pojo.dto.MessageDTO;
 import org.example.pojo.vo.WsMessageVO;
 import org.example.util.RedisNewUtil;
@@ -68,5 +69,14 @@ public class MsgWriter {
                 messageBO,
                 RedisKey.ACK_EXPIRATION_TIME,
                 TimeUnit.MILLISECONDS);
+    }
+
+    @Async
+    public void putAtAck(Long chatRoomId, Long userId, AtDTO dt) {
+        RedisNewUtil.mput(RedisKey.AT_KEY, chatRoomId + ":" + userId, dt.getMessageId(), dt);
+    }
+
+    public void delAckAtMsg(String chatRoomId, Long userId, String messageId) {
+        RedisNewUtil.mdel(RedisKey.AT_KEY, chatRoomId + ":" + userId, messageId);
     }
 }

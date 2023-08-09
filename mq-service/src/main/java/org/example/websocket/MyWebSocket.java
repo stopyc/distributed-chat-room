@@ -134,7 +134,6 @@ public class MyWebSocket {
         }
         WsMessageVO wsMessageVO = null;
         try {
-            log.info("message 为: {}", message);
             wsMessageVO = getWsMessageVO(message);
         } catch (Exception e) {
             log.warn("服務器接受ws消息json解析異常，message 为: {}", message);

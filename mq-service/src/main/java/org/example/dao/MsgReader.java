@@ -1,5 +1,7 @@
 package org.example.dao;
 
+import org.example.constant.RedisKey;
+import org.example.pojo.dto.AtDTO;
 import org.example.pojo.dto.ScrollingPaginationDTO;
 import org.example.util.RedisNewUtil;
 import org.springframework.data.redis.core.ZSetOperations;
@@ -8,6 +10,7 @@ import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -47,4 +50,7 @@ public class MsgReader {
     }
 
 
+    public Map<String, AtDTO> getAtMsg(String chatroomId, Long userId) {
+        return RedisNewUtil.mget(RedisKey.AT_KEY, chatroomId + ":" + userId, AtDTO.class);
+    }
 }

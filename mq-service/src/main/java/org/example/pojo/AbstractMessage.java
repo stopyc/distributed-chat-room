@@ -16,7 +16,7 @@ public abstract class AbstractMessage {
     private Object data;
 
     /**
-     * 消息的类型：文本0、视频1、音频2、文件3、图片4
+     * 消息的类型：文本8、视频9、音频10、文件11、图片12、拍一拍13，
      */
     private Integer messageContentType;
 

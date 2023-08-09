@@ -25,7 +25,25 @@ public enum MessageType {
 
     CHAT_ROOM(6, "群聊"),
 
-    SINGLE_CHAT(7, "单聊");
+    SINGLE_CHAT(7, "单聊"),
+
+    TEXT(8, "文本"),
+
+    VIDEO(9, "视频"),
+
+    AUDIO(10, "音频"),
+
+    file(11, "文件"),
+
+    picture(12, "图片"),
+
+    pat(13, "拍一拍"),
+
+    AT(14, "艾特消息"),
+
+
+    ;
+
 
     private final Integer messageType;
 
@@ -46,4 +64,10 @@ public enum MessageType {
     public static boolean isBusinessAck(Integer messageType) {
         return BUSINESS_ACK.messageType.equals(messageType);
     }
+
+    public static boolean isText(Integer messageType) {
+        return TEXT.messageType.equals(messageType);
+    }
+
+
 }

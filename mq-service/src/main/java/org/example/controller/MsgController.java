@@ -5,10 +5,7 @@ import org.example.pojo.vo.ChatRoomScrollVO;
 import org.example.pojo.vo.SingleScrollVO;
 import org.example.service.IMsgService;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
 
@@ -34,5 +31,17 @@ public class MsgController {
     @PostMapping("/getSingleMsg")
     public ResultDTO getSingleMsg(@RequestBody @Validated SingleScrollVO singleScrollVO) {
         return ResultDTO.ok(msgService.getSingleMsg(singleScrollVO));
+    }
+
+    @DeleteMapping("/{chatroomId}/{messageId}")
+    public ResultDTO ackAtMsg(@PathVariable("chatroomId") String chatroomId,
+                              @PathVariable("messageId") String messageId) {
+        msgService.ackAtMsg(chatroomId, messageId);
+        return ResultDTO.ok();
+    }
+
+    @GetMapping("/{chatroomId}")
+    public ResultDTO getAtMsg(@PathVariable("chatroomId") String chatroomId) {
+        return ResultDTO.ok(msgService.getAtMsg(chatroomId));
     }
 }

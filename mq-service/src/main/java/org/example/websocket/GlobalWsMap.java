@@ -11,8 +11,8 @@ import org.example.pojo.exception.SystemException;
 import org.springframework.util.CollectionUtils;
 
 import javax.websocket.Session;
+import java.util.Collection;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.CopyOnWriteArraySet;
 
@@ -169,7 +169,7 @@ public class GlobalWsMap {
         return WS_GROUP.containsKey(userId);
     }
 
-    public static void sendText(Set<Long> userIdSet, MessageDTO messageDTO, Long fromUserId) {
+    public static void sendText(Collection<Long> userIdSet, MessageDTO messageDTO, Long fromUserId) {
         if (CollectionUtils.isEmpty(userIdSet)) {
             return;
         }

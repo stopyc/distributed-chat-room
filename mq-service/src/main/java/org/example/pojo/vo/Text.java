@@ -6,6 +6,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
+import java.util.List;
+
 /**
  * @program: chat-room
  * @description: 文本消息类
@@ -18,7 +20,7 @@ import lombok.experimental.Accessors;
 @Accessors(chain = true)
 @Builder
 public class Text {
-    private Long atUserId;
+    private List<Long> atUserId;
 
     private String content;
 }

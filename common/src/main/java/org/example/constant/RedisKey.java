@@ -30,4 +30,7 @@ public class RedisKey {
     public static final Long ACK_EXPIRATION_TIME = 1000L;
 
     public static final String CHATROOM = "chatroom:";
+
+    public static final String AT_KEY = "at:";
+
 }

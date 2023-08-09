@@ -171,4 +171,7 @@ public class RedisNewUtil {
         return set;
     }
 
+    public static void multiPut(String redisPrefix, Object key, Map map) {
+        redisTemplate.opsForHash().putAll(redisPrefix + key.toString(), map);
+    }
 }

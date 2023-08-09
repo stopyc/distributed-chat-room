@@ -117,11 +117,8 @@ public class MessageBuffer {
         //生成封装消息传输对象
         MessageBO messageBO = MessageFactory.generateMessageVo(wsMessageVO);
 
-        msgWriter.saveDurableMsg(messageBO);
-        //Redis的Ack队列
-        msgWriter.saveAckMsg(messageBO);
         log.info("推送用户id 为 {} 的消息id 为{} 的消息到mq", wsMessageVO.getFromUserId(), wsMessageVO.getClientMessageId());
-        mqWriter.pushWsMsg2Mq(messageBO);
+        pushAndSave(messageBO);
         if (CollectionUtils.isEmpty(msgList)) {
             getWindowMsg(msgList, wsMessageVO);
         }
@@ -137,12 +134,17 @@ public class MessageBuffer {
             wsMessageVO = JSONObject.parseObject(jsonString.toString(), WsMessageVO.class);
             messageBO = MessageFactory.generateMessageVo(wsMessageVO);
             log.info("推送用户id 为 {} 的消息id 为{} 的消息到mq", wsMessageVO.getFromUserId(), wsMessageVO.getClientMessageId());
-            msgWriter.saveDurableMsg(messageBO);
-            //Redis的Ack队列
-            msgWriter.saveAckMsg(messageBO);
-            mqWriter.pushWsMsg2Mq(messageBO);
+            pushAndSave(messageBO);
         }
     }
+
+    private void pushAndSave(MessageBO messageBO) {
+        msgWriter.saveDurableMsg(messageBO);
+        //Redis的Ack队列
+        msgWriter.saveAckMsg(messageBO);
+        mqWriter.pushWsMsg2Mq(messageBO);
+    }
+
 
     private OffsetPair getOffset(WsMessageVO wsMessageVO) {
         Long offset = offsetMap.get(wsMessageVO.getFromUserId());
