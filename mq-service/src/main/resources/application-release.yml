@@ -87,3 +87,8 @@ setting:
   # 消息接收失败重试间隔(s)
   retry-interval: 1
 
+minio:
+  endpoint: http://${MINIO_HOST}:9090
+  accesskey: ${MINIO_USER}
+  secretKey: ${MINIO_PASSWORD}
+  bucket: chatroom
