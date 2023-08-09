@@ -120,7 +120,17 @@ public class MyWebSocket {
     public void onMessage(Session session,
                           String message,
                           @PathParam("token") String token) {
-        WsMessageVO wsMessageVO = getWsMessageVO(message);
+        if (!StringUtils.hasText(message)) {
+            return;
+        }
+        WsMessageVO wsMessageVO = null;
+        try {
+            log.info("message 为: {}", message);
+            wsMessageVO = getWsMessageVO(message);
+        } catch (Exception e) {
+            log.warn("服務器接受ws消息json解析異常，message 为: {}", message);
+            return;
+        }
         publisherUtil.acceptMessage(this, wsMessageVO);
     }
 
@@ -145,5 +155,13 @@ public class MyWebSocket {
         wsMessageVO.setFromUserId(this.userId);
         wsMessageVO.setMyWebSocket(this);
         return wsMessageVO;
+    }
+
+    @OnMessage
+    public void onBinary(Session session, byte[] bytes) {
+        log.info("客户端接收的二进制流为 为: ");
+        for (byte b : bytes) {
+            System.out.print(b);
+        }
     }
 }
