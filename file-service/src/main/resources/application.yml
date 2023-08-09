@@ -1,0 +1,17 @@
+# 运行端口
+
+spring:
+  # cloud
+  # 运行环境
+  profiles:
+    active: dev
+
+  # 项目名称
+  application:
+    name: file-service
+  main:
+    allow-bean-definition-overriding: true
+
+multipart:
+  maxRequestSize: 200MB
+  maxFileSize: 200MB

@@ -3,7 +3,6 @@ package org.example.interceptor;
 import lombok.extern.slf4j.Slf4j;
 import org.example.pojo.dto.ResultDTO;
 import org.example.pojo.exception.BusinessException;
-import org.example.pojo.vo.ResultVO;
 import org.omg.CORBA.SystemException;
 import org.springframework.core.annotation.Order;
 import org.springframework.data.redis.RedisSystemException;
@@ -18,6 +17,8 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
+import org.springframework.web.multipart.MultipartException;
 
 import java.util.concurrent.CompletionException;
 
@@ -122,19 +123,34 @@ public class ProjectExceptionAdvice {
     }
 
 
-
     /**
      * 处理认证异常
      */
     @ExceptionHandler(value = {AuthenticationException.class})
-    public ResultDTO doAuthenticationException(AuthenticationException  ex){
+    public ResultDTO doAuthenticationException(AuthenticationException ex) {
         log.error("异常: {}", ex.getMessage());
         return ResultDTO.fail(ex.getMessage());
     }
-    /** 除了自定义的异常处理器，保留对Exception类型的异常处理，用于处理非预期的异常 **/
+
+    @ExceptionHandler(value = {MaxUploadSizeExceededException.class})
+    public ResultDTO doMaxUploadSizeExceededException(MaxUploadSizeExceededException ex) {
+        log.error("异常: {}", ex.getMessage());
+        return ResultDTO.fail("文件大小超出200MB");
+    }
+
+
+    @ExceptionHandler(value = {MultipartException.class})
+    public ResultDTO doMultipartException(MultipartException ex) {
+        log.error("异常: {}", ex.getMessage());
+        return ResultDTO.fail("请上传文件喔");
+    }
+
+    /**
+     * 除了自定义的异常处理器，保留对Exception类型的异常处理，用于处理非预期的异常
+     **/
     @ExceptionHandler(Exception.class)
-    public ResultDTO doOtherException(Exception ex){
-        log.error("异常:{}",ex.getMessage());
+    public ResultDTO doOtherException(Exception ex) {
+        log.error("异常:{}", ex.getMessage());
 
 
         //单独一个认证异常的处理

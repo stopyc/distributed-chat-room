@@ -1,6 +1,8 @@
 package org.example.pojo.bo;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import org.example.pojo.AbstractMessage;
 
 import java.io.Serializable;
 
@@ -10,8 +12,9 @@ import java.io.Serializable;
  * @author: stop.yc
  * @create: 2023-04-20 12:21
  **/
+@EqualsAndHashCode(callSuper = true)
 @Data
-public class MessageBO implements Serializable {
+public class MessageBO extends AbstractMessage implements Serializable {
 
     private Long messageId;
 

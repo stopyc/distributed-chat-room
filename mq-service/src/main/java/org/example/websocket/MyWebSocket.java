@@ -8,6 +8,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.slf4j.Slf4j;
 import org.example.pojo.bo.UserBO;
+import org.example.pojo.dto.MessageDTO;
 import org.example.pojo.exception.BusinessException;
 import org.example.pojo.vo.WsMessageVO;
 import org.example.util.JWTUtils;
@@ -78,8 +79,12 @@ public class MyWebSocket {
             try {
                 userBO = JWTUtils.parseJWT2UserBo(token);
             } catch (BusinessException e) {
-                throwError(session, "token已经过期了");
-                throw new BusinessException("token已经过期了");
+                MessageDTO messageDTO = MessageDTO.builder()
+                        .message("token已经过期了")
+                        .messageType(-1)
+                        .build();
+                throwError(session, messageDTO);
+                //throw new BusinessException("token已经过期了");
             }
             this.userId = userBO.getUserId();
             this.userBO = userBO;
@@ -90,7 +95,11 @@ public class MyWebSocket {
 
     private void checkToken(String token, Session session) {
         if (StringUtils.isEmpty(token)) {
-            throwError(session, "token不能为空");
+            MessageDTO messageDTO = MessageDTO.builder()
+                    .messageType(-1)
+                    .message("token不能为空")
+                    .build();
+            throwError(session, messageDTO);
         }
     }
 
@@ -134,10 +143,10 @@ public class MyWebSocket {
         publisherUtil.acceptMessage(this, wsMessageVO);
     }
 
-    private void throwError(Session session, String message) {
+    private void throwError(Session session, MessageDTO messageDTO) {
         try {
             if (session != null && session.isOpen()) {
-                session.getAsyncRemote().sendText(message);
+                session.getAsyncRemote().sendText(JSONObject.toJSONString(messageDTO));
                 String id = session.getId();
                 log.info("id 为: {}", id);
                 URI requestURI = session.getRequestURI();
@@ -147,7 +156,7 @@ public class MyWebSocket {
             }
         } catch (Exception ignored) {
         }
-        throw new BusinessException(message);
+        throw new BusinessException(messageDTO.getMessage());
     }
 
     private WsMessageVO getWsMessageVO(String message) {

@@ -1,7 +1,7 @@
 package org.example.controller;
 
 import org.example.pojo.dto.ResultDTO;
-import org.example.utils.MinioUtil;
+import org.example.util.MinioUtil;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;

@@ -1,5 +1,6 @@
 package org.example.event_listener;
 
+import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.example.adapter.MessageDTOAdapter;
 import org.example.constant.MessageType;
@@ -37,8 +38,18 @@ public class PushWsMessageListener {
     @Async
     @EventListener(classes = PushWsMessageEvent.class)
     public void handleEvent(PushWsMessageEvent pushWsMessageEvent) {
-        //服务器收到消息,先判断这个消息是否之前已经收到了
         WsMessageVO wsMessageVO = pushWsMessageEvent.getWsMessageVO();
+        log.info("message 为: {}", wsMessageVO);
+        JSONObject jsonObject = null;
+        try {
+            Integer messageType = wsMessageVO.getMessageContentType();
+
+        } catch (Exception e) {
+            log.warn("ws消息格式错误");
+            return;
+        }
+
+        //服务器收到消息,先判断这个消息是否之前已经收到了
         Assert.assertNotNull(wsMessageVO.getFromUserId(), "消息发送者id不能为空!");
         if (MessageType.isBeat(wsMessageVO.getMessageType())) {
             pong(wsMessageVO);

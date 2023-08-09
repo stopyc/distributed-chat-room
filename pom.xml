@@ -9,6 +9,7 @@
         <module>gateway</module>
         <module>uaa</module>
         <module>mq-service</module>
+        <module>file-service</module>
     </modules>
 
     <parent>

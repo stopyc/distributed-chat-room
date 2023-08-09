@@ -1,10 +1,8 @@
 package org.example.pojo.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.Accessors;
+import org.example.pojo.AbstractMessage;
 
 /**
  * @program: chat-room
@@ -12,19 +10,20 @@ import lombok.experimental.Accessors;
  * @author: stop.yc
  * @create: 2023-04-20 12:21
  **/
+@EqualsAndHashCode(callSuper = true)
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @Accessors(chain = true)
 @Builder
-public class MessageDTO {
+public class MessageDTO extends AbstractMessage {
 
     private Long messageId;
 
     private Long clientMessageId;
 
     /**
-     * 消费类型：广播类型0、单播类型1、请求类型2、响应类型3、心跳类型4、断开连接类型5、群聊6、单聊7
+     * 消费类型：广播类型0、单播类型1、请求类型2、响应类型3、心跳类型4、断开连接类型5、群聊6、单聊7、token无效-1
      */
     private Integer messageType;
 

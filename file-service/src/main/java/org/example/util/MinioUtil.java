@@ -1,11 +1,9 @@
-package org.example.utils;
+package org.example.util;
 
 import io.minio.*;
 import io.minio.http.Method;
 import org.example.config.MinioProperties;
 import org.example.pojo.exception.BusinessException;
-import org.example.util.SecurityUtils;
-import org.example.util.TimeUtil;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;

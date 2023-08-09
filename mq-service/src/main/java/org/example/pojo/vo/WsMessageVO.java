@@ -2,6 +2,8 @@ package org.example.pojo.vo;
 
 import lombok.Builder;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import org.example.pojo.AbstractMessage;
 import org.example.util.Assert;
 import org.example.websocket.MyWebSocket;
 
@@ -11,9 +13,10 @@ import org.example.websocket.MyWebSocket;
  * @author: stop.yc
  * @create: 2023-07-18 20:26
  **/
+@EqualsAndHashCode(callSuper = true)
 @Data
 @Builder
-public class WsMessageVO implements Cloneable {
+public class WsMessageVO extends AbstractMessage implements Cloneable {
     @Override
     public WsMessageVO clone() throws CloneNotSupportedException {
         return (WsMessageVO) super.clone();
@@ -50,6 +53,7 @@ public class WsMessageVO implements Cloneable {
     private Long toUserId;
 
     private MyWebSocket myWebSocket;
+
 
     public void validate() {
         Assert.assertNotNull(this.messageType, "消息类型不能为空");

@@ -1,6 +1,6 @@
 # 运行端口
 server:
-  port: 34444
+  port: 8083
   tomcat:
     max-connections: 1000
     accept-count: 500
@@ -8,8 +8,6 @@ server:
       max: 300
 
 spring:
-  # cloud
-
   # mq
   rabbitmq:
     host: ${RABBIT_HOST}
@@ -46,33 +44,8 @@ spring:
           period: 20
       shutdown-timeout: 100000
     database: 2
-
-  # 数据源配置
-  datasource:
-    url: jdbc:mysql://${MYSQL_HOST}:3306/script_killing?useSSL=false&serverTimezone=GMT%2B8
-    username: script_killing
-    password: ${REDIS_PASSWORD}
-    driver-class-name: com.mysql.cj.jdbc.Driver
   main:
     allow-bean-definition-overriding: true
-  task:
-    execution:
-      pool:
-        core-size: 100
-        max-size: 300
-        queue-capacity: 100
-  cache:
-    type: redis
-    redis:
-      time-to-live: 36000000
-      cache-null-values: true
-      use-key-prefix: true
-
-# mp配置
-mybatisplus:
-  configuration:
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-
 # 日志配置
 logging:
   level:
@@ -80,9 +53,8 @@ logging:
   pattern:
     dateformat: MM-dd HH:mm:ss:SSS
 
-
-setting:
-  # 消息接收失败重试次数
-  max-retry-time: 3
-  # 消息接收失败重试间隔(s)
-  retry-interval: 1
+minio:
+  endpoint: http://${MINIO_HOST}:9090
+  accesskey: ${MINIO_USER}
+  secretKey: ${MINIO_PASSWORD}
+  bucket: chatroom
