@@ -148,7 +148,6 @@ public class MyWebSocket {
             if (session != null && session.isOpen()) {
                 session.getAsyncRemote().sendText(JSONObject.toJSONString(messageDTO));
                 String id = session.getId();
-                log.info("id 为: {}", id);
                 URI requestURI = session.getRequestURI();
                 log.info("requestURI 为: {}", requestURI);
                 this.session = null;

@@ -48,7 +48,7 @@ public class WsMessageVO extends AbstractMessage implements Cloneable {
     private Long chatRoomId;
 
     /**
-     * 接收者的id
+     * 单聊下接收者的id
      */
     private Long toUserId;
 

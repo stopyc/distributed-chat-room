@@ -10,7 +10,7 @@ import org.example.pojo.exception.BusinessException;
 import org.example.pojo.exception.SystemException;
 import org.springframework.util.CollectionUtils;
 
-import java.io.IOException;
+import javax.websocket.Session;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -78,6 +78,9 @@ public class GlobalWsMap {
                 close(myWebSocket);
                 log.warn("错误的下线请求");
             }
+        } catch (Exception e) {
+            log.warn("下线的参数错误");
+            close(myWebSocket);
         } finally {
             if (myWebSocket.getUserId() != null) {
                 MyWebSocket remove = WS_GROUP.remove(myWebSocket.getUserId());
@@ -128,12 +131,19 @@ public class GlobalWsMap {
     }
 
     private static void close(MyWebSocket myWebSocket) {
-        if (myWebSocket.getSession().isOpen()) {
-            try {
-                myWebSocket.getSession().close();
-            } catch (IOException e) {
-                log.error("关闭连接失败", e);
-            }
+        if (myWebSocket == null) {
+            return;
+        }
+        close(myWebSocket.getSession());
+    }
+
+    private static void close(Session session) {
+        if (session == null || !session.isOpen()) {
+            return;
+        }
+        try {
+            session.close();
+        } catch (Exception ignored) {
         }
     }
 
