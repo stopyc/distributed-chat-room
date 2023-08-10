@@ -7,6 +7,7 @@ import org.example.constant.MessageType;
 import org.example.dao.UserDao;
 import org.example.pojo.bo.MessageBO;
 import org.example.pojo.bo.UserBO;
+import org.example.pojo.dto.AtDTO;
 import org.example.pojo.dto.MessageDTO;
 import org.example.pojo.vo.WsMessageVO;
 import org.springframework.stereotype.Component;
@@ -103,5 +104,24 @@ public class MessageDTOAdapter {
         pong.setMessage("pong");
         pong.setByteArray(null);
         return pong;
+    }
+
+    public static AtDTO getAtDTO(MessageDTO messageDTO) {
+        AtDTO atDTO = BeanUtil.copyProperties(messageDTO, AtDTO.class);
+        atDTO.setClientTime(null);
+        atDTO.setMessage(null);
+        atDTO.setByteArray(null);
+        atDTO.setIsText(false);
+        atDTO.setToUserId(null);
+        atDTO.setToUserName(null);
+        atDTO.setAck(null);
+        atDTO.setColor(null);
+        atDTO.setIcon(null);
+        atDTO.setData(null);
+        atDTO.setMessageContentType(null);
+        atDTO.setReplyMessageId(null);
+        atDTO.setMessageType(MessageType.AT.getMessageType());
+        atDTO.setMessageContentType(MessageType.AT.getMessageType());
+        return atDTO;
     }
 }

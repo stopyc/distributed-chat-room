@@ -177,7 +177,6 @@ public class MessageBuffer {
                         startIndex = 0;
                     }
                     double cur;
-                    log.info("list 为: {}", list);
 
                     for (int i = startIndex, n = list.size(); i < n; ++i) {
                         cur = list.get(i).getScore();

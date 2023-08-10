@@ -2,7 +2,6 @@ package org.example.push;
 
 import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
-import org.example.adapter.MessageBOAdapter;
 import org.example.adapter.MessageDTOAdapter;
 import org.example.constant.MessageType;
 import org.example.dao.MsgWriter;
@@ -41,7 +40,7 @@ public class PushProxy implements PushWorker {
         //单聊的消息进行存储。
         msgWriter.saveSingleChatMsg(messageDTO);
         GlobalWsMap.sendText(messageBO.getToUserId(), messageDTO);
-        at(messageBO);
+        at(messageDTO);
     }
 
     @Override
@@ -51,25 +50,26 @@ public class PushProxy implements PushWorker {
         msgWriter.saveGroupChatMsg(messageDTO);
         Set<Long> userIdSet = userDao.getUserIdSetByChatRoomId(messageDTO.getChatRoomId());
         GlobalWsMap.sendText(userIdSet, messageDTO, messageBO.getFromUserId());
-        at(messageBO);
+        at(messageDTO);
     }
 
 
     @Async
-    protected void at(MessageBO messageBO) {
-        if (!MessageType.isText(messageBO.getMessageContentType())) {
+    protected void at(MessageDTO messageDTO) {
+        if (!MessageType.isText(messageDTO.getMessageContentType())) {
             return;
         }
         //如果有艾特消息，需要发送艾特
-        Object data = messageBO.getData();
+        Object data = messageDTO.getData();
         Text text = JSONObject.parseObject(data.toString(), Text.class);
         if (CollectionUtils.isEmpty(text.getAtUserId())) {
             return;
         }
-        AtDTO atDTO = MessageBOAdapter.getAtDTO((messageBO));
+        log.info("messageBO 为: {}", messageDTO);
+        AtDTO atDTO = MessageDTOAdapter.getAtDTO((messageDTO));
         for (Long userId : text.getAtUserId()) {
-            msgWriter.putAtAck(messageBO.getChatRoomId(), userId, atDTO);
-            if (!GlobalWsMap.isOnline(userId) || userId.equals(messageBO.getFromUserId())) {
+            msgWriter.putAtAck(messageDTO.getChatRoomId(), userId, atDTO);
+            if (!GlobalWsMap.isOnline(userId) || userId.equals(messageDTO.getFromUserId())) {
                 continue;
             }
             GlobalWsMap.sendText(userId, atDTO);

@@ -48,11 +48,6 @@ public class MessageFactory {
         begin = System.currentTimeMillis() - begin;
         log.debug("begin 为: {}", begin);
         messageBO.setMessageId(snowflakeId);
-        if (messageBO.getIsText()) {
-            messageBO.setMessage(messageBO.getMessage());
-        } else {
-            messageBO.setByteArray(messageBO.getByteArray());
-        }
         return messageBO;
     }
 }
