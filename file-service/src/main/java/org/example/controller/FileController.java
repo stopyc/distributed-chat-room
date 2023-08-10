@@ -28,7 +28,9 @@ public class FileController {
     @PostMapping("/upload")
     public ResultDTO fileUpload(@RequestParam("file") MultipartFile file) {
         log.info("file 为: {}", file);
+        long begin = System.currentTimeMillis();
         String url = minioUtil.fileUpload(file);
+        log.info("上传文件耗时: {} ms", System.currentTimeMillis() - begin);
         return ResultDTO.ok(url);
     }
 }

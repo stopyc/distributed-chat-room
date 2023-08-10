@@ -115,11 +115,13 @@ public class GlobalWsMap {
         if (Objects.isNull(myWebSocket)) {
             return;
         }
-        if (myWebSocket.getSession().isOpen()) {
-            try {
-                myWebSocket.getSession().getAsyncRemote().sendText(JSONObject.toJSONString(messageDTO));
-            } catch (Exception e) {
-                log.error("发送消息失败", e);
+        synchronized (myWebSocket.getMonitor()) {
+            if (myWebSocket.getSession().isOpen()) {
+                try {
+                    myWebSocket.getSession().getBasicRemote().sendText(JSONObject.toJSONString(messageDTO));
+                } catch (Exception e) {
+                    log.error("发送消息失败", e);
+                }
             }
         }
     }

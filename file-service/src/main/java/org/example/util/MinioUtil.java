@@ -1,6 +1,8 @@
 package org.example.util;
 
-import io.minio.*;
+import io.minio.GetPresignedObjectUrlArgs;
+import io.minio.MinioClient;
+import io.minio.PutObjectArgs;
 import io.minio.http.Method;
 import org.example.config.MinioProperties;
 import org.example.pojo.exception.BusinessException;
@@ -41,10 +43,10 @@ public class MinioUtil {
         }
 
         try {
-            if (!minioClient.bucketExists(BucketExistsArgs.builder()
-                    .bucket(minioProperties.getBucket()).build())) {
-                minioClient.makeBucket(MakeBucketArgs.builder().bucket(minioProperties.getBucket()).build());
-            }
+            //if (!minioClient.bucketExists(BucketExistsArgs.builder()
+            //        .bucket(minioProperties.getBucket()).build())) {
+            //    minioClient.makeBucket(MakeBucketArgs.builder().bucket(minioProperties.getBucket()).build());
+            //}
 
 
             InputStream inputStream = file.getInputStream();    //获取file的inputStream
