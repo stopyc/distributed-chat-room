@@ -76,8 +76,8 @@ public class MinioUtil {
         Long userId = SecurityUtils.getUser().getUserId();
         String newName = time + "/"
                 + userId + "/"
-                + UUID.randomUUID().toString().replaceAll("-", "")
-                + originFilename.substring(originFilename.lastIndexOf("."));
+                + UUID.randomUUID().toString().replaceAll("-", "");
+        //+ originFilename.substring(originFilename.lastIndexOf("."));
         //新的名称，pic会是bucket下的文件夹
         return newName;
     }
