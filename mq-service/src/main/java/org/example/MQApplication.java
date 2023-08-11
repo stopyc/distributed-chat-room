@@ -7,7 +7,6 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cloud.openfeign.EnableFeignClients;
-import org.springframework.scheduling.annotation.EnableScheduling;
 
 /**
  * @program: monitor
@@ -16,7 +15,6 @@ import org.springframework.scheduling.annotation.EnableScheduling;
  * @create: 2023-04-06 13:20
  **/
 @SpringBootApplication
-@EnableScheduling
 @EnableCaching
 @EnableFeignClients(clients = {IdClient.class, UserClient.class}, defaultConfiguration = FeignConfiguration.class)
 public class MQApplication {

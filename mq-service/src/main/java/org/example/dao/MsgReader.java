@@ -40,6 +40,7 @@ public class MsgReader {
         return RedisNewUtil.zget(redisPrefix, key.toString(), max, offset, count, tClass);
     }
 
+
     public <T> T getDurableMsgByScore(String redisPrefix, Object key, long score, Class<T> tClass) {
         Set<T> durableMsg = RedisNewUtil.zget(redisPrefix, key.toString(), score, tClass);
         if (CollectionUtils.isEmpty(durableMsg)) {
@@ -52,5 +53,9 @@ public class MsgReader {
 
     public Map<String, AtDTO> getAtMsg(String chatroomId, Long userId) {
         return RedisNewUtil.mget(RedisKey.AT_KEY, chatroomId + ":" + userId, AtDTO.class);
+    }
+
+    public List<String> keys(String pattern) {
+        return RedisNewUtil.searchKeys(pattern);
     }
 }

@@ -5,12 +5,12 @@ import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.serializer.SerializerFeature;
 import lombok.extern.slf4j.Slf4j;
 import org.example.pojo.dto.ScrollingPaginationDTO;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ZSetOperations;
+import org.springframework.data.redis.core.*;
 import org.springframework.data.redis.core.script.DefaultRedisScript;
 import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.util.CollectionUtils;
 
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -178,5 +178,28 @@ public class RedisNewUtil {
 
     public static void multiPut(String redisPrefix, Object key, Map map) {
         redisTemplate.opsForHash().putAll(redisPrefix + key.toString(), map);
+    }
+
+    public static List<String> searchKeys(String pattern) {
+        List<String> keys = new ArrayList<>();
+
+        redisTemplate.execute((RedisCallback<Void>) connection -> {
+            ScanOptions scanOptions = ScanOptions.scanOptions().match(pattern + "*").build();
+            Cursor<byte[]> cursor = connection.scan(scanOptions);
+
+            while (cursor.hasNext()) {
+                byte[] keyBytes = cursor.next();
+                String key = new String(keyBytes, StandardCharsets.UTF_8);
+                keys.add(key);
+            }
+
+            return null;
+        });
+        return keys;
+    }
+
+
+    public static void zdel(String redisPrefix, Object key, double minScore, double maxScore) {
+        redisTemplate.opsForZSet().removeRangeByScore(redisPrefix + key.toString(), minScore, maxScore);
     }
 }

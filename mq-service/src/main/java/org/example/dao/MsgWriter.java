@@ -79,4 +79,8 @@ public class MsgWriter {
     public void delAckAtMsg(String chatRoomId, Long userId, String messageId) {
         RedisNewUtil.mdel(RedisKey.AT_KEY, chatRoomId + ":" + userId, messageId);
     }
+
+    public void delWindowMsg(String redisPrefix, Object key, double minScore, double maxScore) {
+        RedisNewUtil.zdel(redisPrefix, key.toString(), minScore, maxScore);
+    }
 }

@@ -172,16 +172,15 @@ public class GlobalWsMap {
         return WS_GROUP.containsKey(userId);
     }
 
-    public static boolean sendText(Collection<Long> userIdSet, MessageDTO messageDTO, Long fromUserId) {
+    public static void sendText(Collection<Long> userIdSet, MessageDTO messageDTO, Long fromUserId) {
         if (CollectionUtils.isEmpty(userIdSet)) {
-            return true;
+            return;
         }
         for (Long userId : userIdSet) {
             if (Objects.equals(userId, fromUserId)) {
                 continue;
             }
-            return sendText(userId, messageDTO);
+            sendText(userId, messageDTO);
         }
-        return false;
     }
 }

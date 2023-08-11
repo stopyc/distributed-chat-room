@@ -37,7 +37,7 @@ public class MessageBuffer {
 
     private static final Map<Long, Long> offsetMap = new ConcurrentHashMap<>(600);
 
-    private static final long BUFFER_SIZE = 50;
+    public static final long BUFFER_SIZE = 50;
 
     @Resource
     private ApplicationContext applicationContext;
