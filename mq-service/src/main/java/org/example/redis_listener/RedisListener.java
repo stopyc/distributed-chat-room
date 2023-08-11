@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.config.WsMessageMqConfig;
 import org.example.constant.RedisKey;
 import org.example.dao.MsgWriter;
+import org.example.dao.UserDao;
 import org.example.mq.correlationData.MyMessageCorrelationData;
 import org.example.pojo.bo.MessageBO;
 import org.example.pojo.exception.SystemException;
@@ -40,6 +41,9 @@ public class RedisListener implements MessageListener {
     @Resource
     private MsgWriter msgWriter;
 
+    @Resource
+    private UserDao userDao;
+
     @Override
     public void onMessage(Message message, byte[] pattern) {
         String expiredKey = message.toString();
@@ -71,8 +75,10 @@ public class RedisListener implements MessageListener {
                     push2Mq(messageBO);
                 }
             }
+        } else if ("__keyevent@2__:expired".equals(channel) && body.contains(RedisKey.USER_ONLINE)) {
+            log.info("用户状态过期,需要重新存储到数据库中!");
+            userDao.saveUserStatus();
         }
-
     }
 
     private void push2Mq(MessageBO messageBO) {

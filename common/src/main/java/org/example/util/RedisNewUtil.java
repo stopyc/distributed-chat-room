@@ -82,6 +82,11 @@ public class RedisNewUtil {
         redisTemplate.expire(redisPrefix + key.toString() + hashKey.toString(), time, unit);
     }
 
+    public static void mput(String redisPrefix, Object key, Map map, long time, TimeUnit unit) {
+        redisTemplate.opsForHash().putAll(redisPrefix + key.toString(), map);
+        redisTemplate.expire(redisPrefix + key.toString(), time, unit);
+    }
+
 
     public static void mdel(String redisPrefix, Object key, Object hashKey) {
         redisTemplate.opsForHash().delete(redisPrefix + key.toString(), hashKey.toString());

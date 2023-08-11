@@ -29,6 +29,8 @@ public class RedisKey {
 
     public static final Long ACK_EXPIRATION_TIME = 1000L;
 
+    public static final Long USER_STATUS_EXPIRATION_TIME = 10L;
+
     public static final String CHATROOM = "chatroom:";
 
     public static final String AT_KEY = "at:";

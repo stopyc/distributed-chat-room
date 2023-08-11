@@ -1,8 +1,6 @@
 package org.example.pojo.vo;
 
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
+import lombok.*;
 import org.example.pojo.AbstractMessage;
 import org.example.util.Assert;
 import org.example.websocket.MyWebSocket;
@@ -16,6 +14,8 @@ import org.example.websocket.MyWebSocket;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class WsMessageVO extends AbstractMessage implements Cloneable {
     @Override
     public WsMessageVO clone() throws CloneNotSupportedException {

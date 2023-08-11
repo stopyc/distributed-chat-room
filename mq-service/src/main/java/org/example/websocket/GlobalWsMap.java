@@ -5,7 +5,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.adapter.MessageDTOAdapter;
 import org.example.pojo.bo.MessageBO;
 import org.example.pojo.dto.MessageDTO;
-import org.example.pojo.dto.UserChatDTO;
 import org.example.pojo.exception.BusinessException;
 import org.example.pojo.exception.SystemException;
 import org.springframework.util.CollectionUtils;
@@ -14,7 +13,6 @@ import javax.websocket.Session;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.CopyOnWriteArraySet;
 
 
 /**
@@ -101,8 +99,8 @@ public class GlobalWsMap {
     /**
      * 获取该服务器中维护的所有用户连接情况
      */
-    public static ConcurrentHashMap<String, CopyOnWriteArraySet<UserChatDTO>> getAllOnline() {
-        return null;
+    public static ConcurrentHashMap<Long, MyWebSocket> getAllOnline() {
+        return WS_GROUP;
     }
 
     private static void alarm(int onlineCount) {
@@ -111,25 +109,28 @@ public class GlobalWsMap {
     }
 
 
-    public static void sendText(MyWebSocket myWebSocket, MessageDTO messageDTO) {
+    public static boolean sendText(MyWebSocket myWebSocket, MessageDTO messageDTO) {
         if (Objects.isNull(myWebSocket)) {
-            return;
+            return false;
         }
         synchronized (myWebSocket.getMonitor()) {
             if (myWebSocket.getSession().isOpen()) {
                 try {
                     myWebSocket.getSession().getBasicRemote().sendText(JSONObject.toJSONString(messageDTO));
+                    return true;
                 } catch (Exception e) {
                     log.error("发送消息失败", e);
+                    return false;
                 }
             }
         }
+        return false;
     }
 
 
-    public static void sendText(Long userId, MessageDTO messageDTO) {
+    public static boolean sendText(Long userId, MessageDTO messageDTO) {
         MyWebSocket myWebSocket = WS_GROUP.get(userId);
-        sendText(myWebSocket, messageDTO);
+        return sendText(myWebSocket, messageDTO);
     }
 
     private static void close(MyWebSocket myWebSocket) {
@@ -171,15 +172,16 @@ public class GlobalWsMap {
         return WS_GROUP.containsKey(userId);
     }
 
-    public static void sendText(Collection<Long> userIdSet, MessageDTO messageDTO, Long fromUserId) {
+    public static boolean sendText(Collection<Long> userIdSet, MessageDTO messageDTO, Long fromUserId) {
         if (CollectionUtils.isEmpty(userIdSet)) {
-            return;
+            return true;
         }
         for (Long userId : userIdSet) {
             if (Objects.equals(userId, fromUserId)) {
                 continue;
             }
-            sendText(userId, messageDTO);
+            return sendText(userId, messageDTO);
         }
+        return false;
     }
 }
