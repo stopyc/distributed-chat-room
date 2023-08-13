@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.constant.RedisKey;
 import org.example.feign.ESClient;
 import org.example.mapper.UserMapper;
+import org.example.pojo.AtUserDTO;
 import org.example.pojo.bo.UserBO;
 import org.example.pojo.dto.UserAuthority;
 import org.example.pojo.dto.UserDTO;
@@ -33,6 +34,7 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import static org.example.constant.RedisKey.LOGOUT_KEY;
 import static org.example.constant.ResultEnum.SUCCESS;
@@ -228,5 +230,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
         userMapper.addRole2User(user.getUserId(), TOURIST.getRoleId());
         return ResultVO.ok();
+    }
+
+    @Override
+    public List<AtUserDTO> getUserListByIdList(List<Long> userIds) {
+        List<User> userList = listByIds(userIds);
+        return userList.stream()
+                .map(user -> AtUserDTO.builder()
+                        .userId(user.getUserId())
+                        .username(user.getUsername())
+                        .color(user.getColor())
+                        .icon(user.getIcon())
+                        .build())
+                .collect(Collectors.toList());
     }
 }

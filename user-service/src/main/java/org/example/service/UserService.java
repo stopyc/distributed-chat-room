@@ -2,9 +2,12 @@ package org.example.service;
 
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.example.pojo.AtUserDTO;
 import org.example.pojo.po.User;
 import org.example.pojo.vo.ResultVO;
 import org.example.pojo.vo.UserVO;
+
+import java.util.List;
 
 
 /**
@@ -26,4 +29,6 @@ public interface UserService extends IService<User> {
     ResultVO testTc();
 
     ResultVO register(UserVO userVO);
+
+    List<AtUserDTO> getUserListByIdList(List<Long> userIds);
 }

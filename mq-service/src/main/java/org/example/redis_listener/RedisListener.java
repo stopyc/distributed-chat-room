@@ -76,7 +76,6 @@ public class RedisListener implements MessageListener {
                 }
             }
         } else if ("__keyevent@2__:expired".equals(channel) && body.contains(RedisKey.USER_ONLINE)) {
-            log.info("用户状态过期,需要重新存储到数据库中!");
             userDao.saveUserStatus();
         }
     }

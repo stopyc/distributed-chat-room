@@ -1,5 +1,6 @@
 package org.example.controller;
 
+import lombok.RequiredArgsConstructor;
 import org.example.pojo.dto.ResultDTO;
 import org.example.pojo.po.ChatRoom;
 import org.example.service.IChatRoomService;
@@ -8,7 +9,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import javax.annotation.Resource;
 import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -21,8 +21,8 @@ import java.util.stream.Collectors;
  **/
 @RestController
 @RequestMapping(value = "/chatRoom", produces = "application/json;charset=utf-8")
+@RequiredArgsConstructor
 public class ChatRoomController {
-    @Resource
     private IChatRoomService chatRoomService;
 
     @GetMapping("/inner/{chatRoomId}")
@@ -36,5 +36,10 @@ public class ChatRoomController {
                 .collect(Collectors.toList());
 
         return ResultDTO.ok(new HashSet<>(list));
+    }
+
+    @GetMapping("/list/{chatroomId}")
+    public ResultDTO listUsersInChatRoom(@PathVariable String chatroomId) {
+        return chatRoomService.listUsersInChatRoom(chatroomId);
     }
 }
