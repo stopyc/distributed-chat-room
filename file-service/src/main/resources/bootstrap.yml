@@ -10,4 +10,4 @@ spring:
         cluster-name: GZ
         #        ip: ${HOST}
         ephemeral: true
-#        ip: 39.98.41.126
+        ip: 39.98.41.126

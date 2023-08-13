@@ -1,0 +1,60 @@
+# 运行端口
+server:
+  port: 32001
+  tomcat:
+    max-connections: 1000
+    accept-count: 500
+    threads:
+      max: 300
+
+spring:
+  # mq
+  rabbitmq:
+    host: ${RABBIT_HOST}
+    username: ${RABBIT_USERNAME}
+    password: ${RABBIT_PASSWORD}
+    virtual-host: /
+    port: 5672
+    # 开启退回模式,如果队列没能ack,就会调用回退方法
+    publisher-returns: true
+    # 开启确认模式,如果生产者没能把消息发到交换机,就会调用回退方法
+    publisher-confirm-type: correlated
+    listener:
+      direct:
+        # 设置消息手动签收
+        acknowledge-mode: manual
+        # 服务端限流,这个需要根据你的承载能力去设置
+        consumers-per-queue: 20
+
+  # redis
+  redis:
+    host: ${REDIS_HOST}
+    port: 6379
+    password: ${REDIS_PASSWORD}
+    lettuce:
+      pool:
+        max-idle: 30
+        max-active: 8
+        max-wait: 10000
+        min-idle: 10
+      cluster:
+        refresh:
+          adaptive: true
+          #20秒自动刷新一次
+          period: 20
+      shutdown-timeout: 100000
+    database: 2
+  main:
+    allow-bean-definition-overriding: true
+# 日志配置
+logging:
+  level:
+    cn.itcast: debug
+  pattern:
+    dateformat: MM-dd HH:mm:ss:SSS
+
+minio:
+  endpoint: http://${MINIO_HOST}:9090
+  accesskey: ${MINIO_USER}
+  secretKey: ${MINIO_PASSWORD}
+  bucket: chatroom

@@ -23,7 +23,7 @@ import java.util.stream.Collectors;
 @RequestMapping(value = "/chatRoom", produces = "application/json;charset=utf-8")
 @RequiredArgsConstructor
 public class ChatRoomController {
-    private IChatRoomService chatRoomService;
+    private final IChatRoomService chatRoomService;
 
     @GetMapping("/inner/{chatRoomId}")
     //@PreAuthorize("@ss.hasPermi('system:admin:query')")
