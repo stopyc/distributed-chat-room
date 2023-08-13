@@ -82,12 +82,15 @@ public class MessageBuffer {
             msgWriter.saveDurableMsg(wsMessageVO);
             //  如果有序到达，则需要把后面的所有消息发送出去，并更新offset的值，同时把所有的消息填入ack 队列中,并返回最后一个offset ack
             if (clientMessageId == offsetPair.getOffset() + 1) {
-                log.info("用户id 为 {} 发送的消息id为 {} 有序到达，开始发送消息", wsMessageVO.getFromUserId(), clientMessageId);
-                offsetAck = getLastOffset(offsetPair.getMsgList(), wsMessageVO);
-                log.info("消息id 为{} 的消息有序到达，把后面的消息全部进行推送，最新的offset为 {}", wsMessageVO.getClientMessageId(), offsetAck);
-                me().push2Mq(offsetPair.getMsgList(), wsMessageVO, offsetAck);
-                // 更新offset
-                offsetMap.put(wsMessageVO.getFromUserId(), offsetAck);
+                // 防止同一条消息同时发送过来，导致重复消费。
+                synchronized (wsMessageVO.getMyWebSocket().getMonitor()) {
+                    log.info("用户id 为 {} 发送的消息id为 {} 有序到达，开始发送消息", wsMessageVO.getFromUserId(), clientMessageId);
+                    offsetAck = getLastOffset(offsetPair.getMsgList(), wsMessageVO);
+                    log.info("消息id 为{} 的消息有序到达，把后面的消息全部进行推送，最新的offset为 {}", wsMessageVO.getClientMessageId(), offsetAck);
+                    me().push2Mq(offsetPair.getMsgList(), wsMessageVO, offsetAck);
+                    // 更新offset
+                    offsetMap.put(wsMessageVO.getFromUserId(), offsetAck);
+                }
             } else if (clientMessageId <= offsetPair.getOffset()) {
                 log.warn("注意下游服务是否阻塞，用户id 为 {} 发送的消息id为 {} 重复消息，正在从缓存中取出消息，并继续放入ack队列中", wsMessageVO.getFromUserId(), clientMessageId);
                 // 获取ok持久队列中的消息
