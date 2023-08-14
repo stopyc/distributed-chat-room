@@ -25,4 +25,6 @@ public class AtUserDTO {
     private String color;
 
     private String icon;
+
+    private boolean online;
 }
