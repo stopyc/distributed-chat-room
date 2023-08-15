@@ -40,7 +40,6 @@ public class PushProxy implements PushWorker {
         //单聊的消息进行存储。
         msgWriter.saveSingleChatMsg(messageDTO);
         GlobalWsMap.sendText(messageBO.getToUserId(), messageDTO);
-        at(messageDTO);
     }
 
     @Override

@@ -1,6 +1,6 @@
 # 运行端口
 server:
-  port: 8088
+  port: 8087
   tomcat:
     max-connections: 1000
     accept-count: 500
