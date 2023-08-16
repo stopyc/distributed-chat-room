@@ -25,6 +25,7 @@ import org.example.service.UserService;
 import org.example.util.RedisNewUtil;
 import org.example.util.RedisUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -73,6 +74,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Resource
     private UserMapper userMapper;
+
+    @Resource
+    private ApplicationContext applicationContext;
+
+    private UserServiceImpl me() {
+        return applicationContext.getBean(UserServiceImpl.class);
+    }
 
     private static final String ANONYMOUS_USER = "anonymousUser";
 
@@ -147,6 +155,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                     .eq(User::getColor, color)
                     .one();
             RedisNewUtil.del(RedisKey.CHATROOM, ":1");
+            RedisNewUtil.del(RedisKey.CHATROOM_SET, ":1");
+            RedisNewUtil.del(RedisKey.USER_BATCH, "");
             chatRoomService.save(new ChatRoom(1L, user.getUserId()));
         }
 
@@ -234,7 +244,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public List<AtUserDTO> getUserListByIdList(List<Long> userIds) {
-        List<User> userList = listByIds(userIds);
+        List<User> userList = me().getUsers(userIds);
         return userList.stream()
                 .map(user -> AtUserDTO.builder()
                         .userId(user.getUserId())
@@ -243,5 +253,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                         .icon(user.getIcon())
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    public List<User> getUsers(List<Long> userIds) {
+        return listByIds(userIds);
     }
 }

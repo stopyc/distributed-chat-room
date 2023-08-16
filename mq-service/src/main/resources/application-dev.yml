@@ -19,7 +19,7 @@ spring:
     username: ${RABBIT_USERNAME}
     password: ${RABBIT_PASSWORD}
     virtual-host: /
-    port: 5672
+    port: 5673
     # 开启退回模式,如果队列没能ack,就会调用回退方法
     publisher-returns: true
     # 开启确认模式,如果生产者没能把消息发到交换机,就会调用回退方法

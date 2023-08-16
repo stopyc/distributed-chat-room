@@ -39,7 +39,7 @@ public class MsgServiceImpl implements IMsgService {
         prefixKey = RedisKey.GROUP_CHAT;
         msgKey = chatRoomScrollVO.getChatRoomId().toString();
         ScrollingPaginationDTO<MessageDTO> msg = msgReader.getMsg(prefixKey, msgKey, chatRoomScrollVO.getMax(), chatRoomScrollVO.getOffset(), 20, MessageDTO.class);
-        Collections.reverse(msg.getResultList());
+        //Collections.reverse(msg.getResultList());
         return msg;
     }
 

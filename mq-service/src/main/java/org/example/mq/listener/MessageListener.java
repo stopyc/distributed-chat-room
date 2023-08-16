@@ -58,6 +58,9 @@ public class MessageListener {
             String msg = new String(message.getBody(), StandardCharsets.UTF_8);
 
             MessageBO messageBO = JSONObject.parseObject(msg, MessageBO.class);
+            if (messageBO == null) {
+                return;
+            }
             // 1.接受消息
             log.info("交换机 {} 接受到消息: {}", WS_EXCHANGE_NAME, messageBO);
             //Business ack

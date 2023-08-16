@@ -31,7 +31,9 @@ public class RedisKey {
 
     public static final Long USER_STATUS_EXPIRATION_TIME = 10L;
 
-    public static final String CHATROOM = "chatroom:";
+    public static final String CHATROOM = "chatroomList:";
+    public static final String CHATROOM_SET = "chatroomSet:";
+    public static final String USER_BATCH = "userbatch";
 
     public static final String AT_KEY = "at:";
 

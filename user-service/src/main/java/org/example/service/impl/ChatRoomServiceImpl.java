@@ -11,6 +11,8 @@ import org.example.pojo.exception.FeignException;
 import org.example.pojo.po.ChatRoom;
 import org.example.service.IChatRoomService;
 import org.example.service.UserService;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -37,13 +39,17 @@ public class ChatRoomServiceImpl extends ServiceImpl<ChatRoomMapper, ChatRoom> i
     @Resource
     private UserStatusClient userStatusClient;
 
+    @Resource
+    private ApplicationContext applicationContext;
+
+    private ChatRoomServiceImpl me() {
+        return applicationContext.getBean(ChatRoomServiceImpl.class);
+    }
+
 
     @Override
     public ResultDTO listUsersInChatRoom(String chatroomId) {
-        List<ChatRoom> list = lambdaQuery()
-                .eq(ChatRoom::getChatRoomId, chatroomId)
-                .list();
-        List<Long> userIds = list.stream().map(ChatRoom::getUserId).collect(Collectors.toList());
+        List<Long> userIds = me().getUserSetByChatRoomId(Long.parseLong(chatroomId));
         List<AtUserDTO> userList = userService.getUserListByIdList(userIds);
         ResultDTO chatRoomUserStatus;
         try {
@@ -73,5 +79,16 @@ public class ChatRoomServiceImpl extends ServiceImpl<ChatRoomMapper, ChatRoom> i
         }
 
         return ResultDTO.ok(userList);
+    }
+
+    @Override
+    @Cacheable(value = "chatroomList", key = "#chatRoomId")
+    public List<Long> getUserSetByChatRoomId(Long chatRoomId) {
+        return lambdaQuery()
+                .eq(ChatRoom::getChatRoomId, chatRoomId)
+                .list()
+                .stream()
+                .map(ChatRoom::getUserId)
+                .collect(Collectors.toList());
     }
 }

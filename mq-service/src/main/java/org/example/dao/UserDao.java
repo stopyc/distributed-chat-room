@@ -48,23 +48,30 @@ public class UserDao {
         return new UserBO();
     }
 
-    @Cacheable(value = "chatroom", key = "#chatRoomId")
-    public Set<Long> getUserIdSetByChatRoomId(Long chatRoomId) {
-        ResultDTO userSetByChatRoomId = null;
-        try {
-            userSetByChatRoomId = userClient.getUserSetByChatRoomId(chatRoomId);
-            HashSet<Long> hashset = new HashSet<>();
-            if (userSetByChatRoomId.getCode() == 200) {
-                List data = (ArrayList) userSetByChatRoomId.getData();
-                for (Object datum : data) {
-                    hashset.add((long) ((int) datum));
-                }
-                return hashset;
+    private static List<Long> getChatRoomUserList(Long chatRoomId) {
+        ResultDTO userSetByChatRoomId;
+        userSetByChatRoomId = userClient.getUserSetByChatRoomId(chatRoomId);
+        if (userSetByChatRoomId.getCode() == 200) {
+            List data = (ArrayList) userSetByChatRoomId.getData();
+            List list = new ArrayList<>(data.size());
+            for (Object datum : data) {
+                list.add((long) ((int) datum));
             }
+            return list;
+        }
+        return Collections.emptyList();
+    }
+
+    @Cacheable(value = "chatroomSet", key = "#chatRoomId")
+    public Set<Long> getUserIdSetByChatRoomId(Long chatRoomId) {
+        List<Long> list;
+        try {
+            list = getChatRoomUserList(chatRoomId);
+            HashSet<Long> hashset = new HashSet<>(list);
+            return hashset;
         } catch (Exception e) {
             return Collections.emptySet();
         }
-        return Collections.emptySet();
     }
 
     public void addCacheUser(MyWebSocket myWebSocket) {
