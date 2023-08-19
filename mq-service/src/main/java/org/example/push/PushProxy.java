@@ -1,19 +1,15 @@
 package org.example.push;
 
-import com.alibaba.fastjson.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.example.adapter.MessageDTOAdapter;
 import org.example.constant.MessageType;
 import org.example.dao.MsgWriter;
 import org.example.dao.UserDao;
 import org.example.pojo.bo.MessageBO;
-import org.example.pojo.dto.AtDTO;
 import org.example.pojo.dto.MessageDTO;
-import org.example.pojo.vo.Text;
+import org.example.utils.PublisherUtil;
 import org.example.websocket.GlobalWsMap;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 
 import javax.annotation.Resource;
 import java.util.Set;
@@ -34,6 +30,9 @@ public class PushProxy implements PushWorker {
     @Resource
     private MsgWriter msgWriter;
 
+    @Resource
+    private PublisherUtil publisher;
+
     @Override
     public void push2User(MessageBO messageBO) {
         MessageDTO messageDTO = MessageDTOAdapter.getSingleChatMsgDTO(messageBO, MessageType.SINGLE_CHAT.getMessageType());
@@ -49,29 +48,6 @@ public class PushProxy implements PushWorker {
         msgWriter.saveGroupChatMsg(messageDTO);
         Set<Long> userIdSet = userDao.getUserIdSetByChatRoomId(messageDTO.getChatRoomId());
         GlobalWsMap.sendText(userIdSet, messageDTO, messageBO.getFromUserId());
-        at(messageDTO);
-    }
-
-
-    @Async
-    protected void at(MessageDTO messageDTO) {
-        if (!MessageType.isText(messageDTO.getMessageContentType())) {
-            return;
-        }
-        //如果有艾特消息，需要发送艾特
-        Object data = messageDTO.getData();
-        Text text = JSONObject.parseObject(data.toString(), Text.class);
-        if (CollectionUtils.isEmpty(text.getAtUserId())) {
-            return;
-        }
-        log.info("messageBO 为: {}", messageDTO);
-        AtDTO atDTO = MessageDTOAdapter.getAtDTO((messageDTO));
-        for (Long userId : text.getAtUserId()) {
-            msgWriter.putAtAck(messageDTO.getChatRoomId(), userId, atDTO);
-            if (!GlobalWsMap.isOnline(userId) || userId.equals(messageDTO.getFromUserId())) {
-                continue;
-            }
-            GlobalWsMap.sendText(userId, atDTO);
-        }
+        publisher.atUserInChatRoom(this, messageDTO);
     }
 }

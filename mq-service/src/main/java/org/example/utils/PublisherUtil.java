@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.example.event.*;
 import org.example.mq.correlationData.MyMessageCorrelationData;
 import org.example.pojo.bo.MessageBO;
+import org.example.pojo.dto.MessageDTO;
 import org.example.pojo.vo.WsMessageVO;
 import org.example.websocket.MyWebSocket;
 import org.springframework.context.ApplicationEventPublisher;
@@ -47,5 +48,9 @@ public class PublisherUtil {
 
     public void pushBusinessAck(Object source, MessageBO messageBO) {
         eventPublisher.publishEvent(new PushBusinessAckEvent(source, messageBO));
+    }
+
+    public void atUserInChatRoom(Object source, MessageDTO messageDTO) {
+        eventPublisher.publishEvent(new AtUserEvent(source, messageDTO));
     }
 }
