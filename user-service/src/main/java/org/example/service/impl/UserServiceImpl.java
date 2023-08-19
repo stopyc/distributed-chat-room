@@ -35,7 +35,6 @@ import org.springframework.util.CollectionUtils;
 import javax.annotation.Resource;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
 import static org.example.constant.RedisKey.LOGOUT_KEY;
 import static org.example.constant.ResultEnum.SUCCESS;
@@ -244,18 +243,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     @Override
     public List<AtUserDTO> getUserListByIdList(List<Long> userIds) {
-        List<User> userList = me().getUsers(userIds);
-        return userList.stream()
-                .map(user -> AtUserDTO.builder()
-                        .userId(user.getUserId())
-                        .username(user.getUsername())
-                        .color(user.getColor())
-                        .icon(user.getIcon())
-                        .build())
-                .collect(Collectors.toList());
+        return me().getUsers(userIds);
+        //return userList.stream()
+        //        .map(user -> AtUserDTO.builder()
+        //                .userId(user.getUserId())
+        //                .username(user.getUsername())
+        //                .color(user.getColor())
+        //                .icon(user.getIcon())
+        //                .build())
+        //        .collect(Collectors.toList());
     }
 
-    public List<User> getUsers(List<Long> userIds) {
-        return listByIds(userIds);
+    public List<AtUserDTO> getUsers(List<Long> userIds) {
+        return userMapper.getAtUserList(userIds);
+        //return listByIds(userIds);
     }
 }

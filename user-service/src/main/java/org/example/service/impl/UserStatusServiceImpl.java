@@ -8,6 +8,7 @@ import org.example.service.IUserStatusService;
 import org.example.util.RedisNewUtil;
 import org.springframework.stereotype.Service;
 
+import java.util.Collection;
 import java.util.Map;
 
 /**
@@ -23,6 +24,12 @@ public class UserStatusServiceImpl implements IUserStatusService {
     public ResultDTO getChatRoomUserStatus(Long chatRoomId) {
         Map<String, UserStatusDTO> mget = RedisNewUtil.mget(RedisKey.USER_ONLINE, "", UserStatusDTO.class);
         return ResultDTO.ok(mget.values());
+    }
+
+    @Override
+    public Collection<UserStatusDTO> getChatRoomUserStatusCollection(Long chatRoomId) {
+        Map<String, UserStatusDTO> mget = RedisNewUtil.mget(RedisKey.USER_ONLINE, "", UserStatusDTO.class);
+        return mget.values();
     }
 
     @Override

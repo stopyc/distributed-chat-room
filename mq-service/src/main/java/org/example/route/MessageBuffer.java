@@ -62,47 +62,54 @@ public class MessageBuffer {
 
     private void msgSlidingWindow(WsMessageVO wsMessageVO) {
         Long clientMessageId = wsMessageVO.getClientMessageId();
-        //1. 获取offset，offset表示服务器已经收到有序消息的最大值，不代表已经收到的值。
-        OffsetPair offsetPair = getOffset(wsMessageVO);
-
-        // 注意：不需要重复，直接保存redis，通过hash进行去重，无需手动抛弃，
-
-        // 消息正确顺序接收的偏移量
         Long offsetAck;
+        //每个用户的消息必须串行处理
+        //1. offset获取的时候，需要加锁，保证offset的正确性
+        //2. ws session发送消息必须串行，否则会冲突
+        //3. 防止offset顺序的时候，同时来两条一样的消息。
+        synchronized (wsMessageVO.getMyWebSocket().getMonitor()) {
+            //1. 获取offset，offset表示服务器已经收到有序消息的最大值，不代表已经收到的值。
+            OffsetPair offsetPair = getOffset(wsMessageVO);
 
-        //2. 需要判断是否溢出缓冲区，
-        //  如果溢出，需要返回offset ack, 让客户端重发，直到客户端消息接收，并移动滑动窗口
-        if (clientMessageId - offsetPair.getOffset() > BUFFER_SIZE) {
-            log.warn("用户id 为 {} 发送的消息id为 {} 超出缓存区，直接抛弃", wsMessageVO.getFromUserId(), clientMessageId);
-            offsetAck = offsetPair.getOffset();
-        }
-        // 如果没有溢出，则需要保存，并返回offset ack
-        else {
-            //3. 如果没有溢出，直接保存，去重工作通过hash去做，保存的时候，需要看一下消息是否有序到达
-            msgWriter.saveDurableMsg(wsMessageVO);
-            //  如果有序到达，则需要把后面的所有消息发送出去，并更新offset的值，同时把所有的消息填入ack 队列中,并返回最后一个offset ack
-            if (clientMessageId == offsetPair.getOffset() + 1) {
-                // 防止同一条消息同时发送过来，导致重复消费。
-                synchronized (wsMessageVO.getMyWebSocket().getMonitor()) {
+            // 注意：不需要重复，直接保存redis，通过hash进行去重，无需手动抛弃，
+
+            // 消息正确顺序接收的偏移量
+
+            //2. 需要判断是否溢出缓冲区，
+            //  如果溢出，需要返回offset ack, 让客户端重发，直到客户端消息接收，并移动滑动窗口
+            if (clientMessageId - offsetPair.getOffset() > BUFFER_SIZE) {
+                log.warn("用户id 为 {} 发送的消息id为 {} 超出缓存区，直接抛弃", wsMessageVO.getFromUserId(), clientMessageId);
+                offsetAck = offsetPair.getOffset();
+            }
+            // 如果没有溢出，则需要保存，并返回offset ack
+            else {
+                //3. 如果没有溢出，直接保存，去重工作通过hash去做，保存的时候，需要看一下消息是否有序到达
+                //这个消息存储不能异步
+                msgWriter.saveDurableMsg(wsMessageVO);
+                //  如果有序到达，则需要把后面的所有消息发送出去，并更新offset的值，同时把所有的消息填入ack 队列中,并返回最后一个offset ack
+                if (clientMessageId == offsetPair.getOffset() + 1) {
+                    // 防止同一条消息同时发送过来，导致重复消费。
+
                     log.info("用户id 为 {} 发送的消息id为 {} 有序到达，开始发送消息", wsMessageVO.getFromUserId(), clientMessageId);
                     offsetAck = getLastOffset(offsetPair.getMsgList(), wsMessageVO);
                     log.info("消息id 为{} 的消息有序到达，把后面的消息全部进行推送，最新的offset为 {}", wsMessageVO.getClientMessageId(), offsetAck);
                     me().push2Mq(offsetPair.getMsgList(), wsMessageVO, offsetAck);
                     // 更新offset
                     offsetMap.put(wsMessageVO.getFromUserId(), offsetAck);
+
+                } else if (clientMessageId <= offsetPair.getOffset()) {
+                    log.warn("注意下游服务是否阻塞，用户id 为 {} 发送的消息id为 {} 重复消息，正在从缓存中取出消息，并继续放入ack队列中", wsMessageVO.getFromUserId(), clientMessageId);
+                    // 获取ok持久队列中的消息
+                    MessageBO durableMsgByScore = msgReader.getDurableMsgByScore(RedisKey.OK_MESSAGE_KEY, wsMessageVO.getFromUserId(), wsMessageVO.getClientMessageId(), MessageBO.class);
+                    offsetAck = offsetPair.getOffset();
+                    mqWriter.pushWsMsg2Mq(durableMsgByScore);
+                    //继续放入Redis的Ack队列，等待key 超时重试即可。
+                    msgWriter.saveAckMsg(durableMsgByScore);
                 }
-            } else if (clientMessageId <= offsetPair.getOffset()) {
-                log.warn("注意下游服务是否阻塞，用户id 为 {} 发送的消息id为 {} 重复消息，正在从缓存中取出消息，并继续放入ack队列中", wsMessageVO.getFromUserId(), clientMessageId);
-                // 获取ok持久队列中的消息
-                MessageBO durableMsgByScore = msgReader.getDurableMsgByScore(RedisKey.OK_MESSAGE_KEY, wsMessageVO.getFromUserId(), wsMessageVO.getClientMessageId(), MessageBO.class);
-                offsetAck = offsetPair.getOffset();
-                mqWriter.pushWsMsg2Mq(durableMsgByScore);
-                //继续放入Redis的Ack队列，等待key 超时重试即可。
-                msgWriter.saveAckMsg(durableMsgByScore);
-            }
-            //  如果无序到达，则直接保存即可，并返回offset ack
-            else {
-                offsetAck = offsetPair.getOffset();
+                //  如果无序到达，则直接保存即可，并返回offset ack
+                else {
+                    offsetAck = offsetPair.getOffset();
+                }
             }
         }
 
