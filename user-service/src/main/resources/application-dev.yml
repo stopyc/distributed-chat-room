@@ -1,22 +1,27 @@
-# 运行端口
+application.yml# 运行端口
 server:
-  port: 34444
-  tomcat:
-    max-connections: 1000
-    accept-count: 500
-    threads:
-      max: 300
+  port: 8081
 
 spring:
-  # cloud
-
+  # 数据源配置
+  datasource:
+    url: jdbc:mysql://localhost:3306/script_killing?useSSL=false&serverTimezone=GMT%2B8
+    username: root
+    password: 123456
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  # 项目名称
+  application:
+    name: user-service
+  # 运行环境
+  profiles:
+    active: dev
   # mq
   rabbitmq:
     host: ${RABBIT_HOST}
     username: ${RABBIT_USERNAME}
     password: ${RABBIT_PASSWORD}
     virtual-host: /
-    port: 5673
+    port: 5672
     # 开启退回模式,如果队列没能ack,就会调用回退方法
     publisher-returns: true
     # 开启确认模式,如果生产者没能把消息发到交换机,就会调用回退方法
@@ -28,6 +33,19 @@ spring:
         # 服务端限流,这个需要根据你的承载能力去设置
         consumers-per-queue: 20
 
+  # cloud
+  cloud:
+    sentinel:
+      transport:
+        dashboard: localhost:8090
+  # springCache
+  cache:
+    type: redis
+    redis:
+      # 过期时间
+      time-to-live: 36000000
+      cache-null-values: true
+      use-key-prefix: true
   # redis
   redis:
     host: ${REDIS_HOST}
@@ -46,43 +64,28 @@ spring:
           period: 20
       shutdown-timeout: 100000
     database: 2
+  jackson:
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
 
-  # 数据源配置
-  datasource:
-    url: jdbc:mysql://${MYSQL_HOST}:3306/distributed_chat?useSSL=false&serverTimezone=GMT%2B8
-    username: distributed_chat
-    password: ${REDIS_PASSWORD}
-    driver-class-name: com.mysql.cj.jdbc.Driver
-  main:
-    allow-bean-definition-overriding: true
-  task:
-    execution:
-      pool:
-        core-size: 100
-        max-size: 300
-        queue-capacity: 100
-  cache:
-    type: redis
-    redis:
-      time-to-live: 36000000
-      cache-null-values: true
-      use-key-prefix: true
+# 日志配置
+logging:
+  level:
+    org.example: debug
+  pattern:
+    dateformat: MM-dd HH:mm:ss:SSS
+
+# 配置常量类
+setting:
+  # 超级管理员id(数据库直接生成)
+  super-admin-user-id: 1
+
+
 
 # mp配置
 mybatisplus:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
-
-# 日志配置
-logging:
-  level:
-    cn.itcast: debug
-  pattern:
-    dateformat: MM-dd HH:mm:ss:SSS
+  type-aliases-package: org.example.pojo.po
 
 
-setting:
-  # 消息接收失败重试次数
-  max-retry-time: 3
-  # 消息接收失败重试间隔(s)
-  retry-interval: 1

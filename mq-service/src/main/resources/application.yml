@@ -4,7 +4,7 @@ spring:
   # cloud
   # 运行环境
   profiles:
-    active: dev
+    active: release
 
   # 项目名称
   application:

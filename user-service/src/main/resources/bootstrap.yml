@@ -12,4 +12,5 @@ spring:
         # 广州集群
         cluster-name: GZ
         ephemeral: true
+        ip: 123.207.51.46
 
